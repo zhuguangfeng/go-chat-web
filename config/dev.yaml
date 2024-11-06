@@ -1,0 +1,12 @@
+mysql:
+  host: "0.0.0.0"
+  port: 3307
+  database: "go_chat"
+  user: root
+  password: "123456"
+
+redis:
+  host: "0.0.0.0"
+  port: 6380
+  user: root
+  password: root
