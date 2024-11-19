@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 
-	dtoV1 "github.com/zhuguangfeng/go-chat/go-chat/dto/v1"
-	"github.com/zhuguangfeng/go-chat/go-chat/internal/common"
+	dtoV1 "github.com/zhuguangfeng/go-chat/dto/v1"
+	"github.com/zhuguangfeng/go-chat/pkg/common"
 )
 
-func (u *UserController) LoginPwd(ctx *gin.Context, req dtoV1.UserPwdLoginReq) {
+func (u *UserHandler) LoginPwd(ctx *gin.Context, req dtoV1.UserPwdLoginReq) {
 	user, errCode, err := u.userSvc.UserLoginPwd(ctx, req.Phone, req.Password)
 
 	if err != nil {

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/redis/go-redis/v9"
-	"github.com/zhuguangfeng/go-chat/go-chat/internal/domain"
+	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"time"
 )
 

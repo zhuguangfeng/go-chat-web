@@ -3,7 +3,7 @@ package ioc
 import (
 	"fmt"
 	"github.com/spf13/viper"
-	"github.com/zhuguangfeng/go-chat/go-chat/model"
+	"github.com/zhuguangfeng/go-chat/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

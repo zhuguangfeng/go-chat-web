@@ -9,8 +9,10 @@ func main() {
 	initViperWatch()
 	app := InitWebServer()
 
-	app.Server.Run()
-
+	err := app.Server.Run()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func initViperWatch() {

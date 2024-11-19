@@ -11,7 +11,6 @@ func WrapBody[Req any](bizFn func(ctx *gin.Context, req Req)) gin.HandlerFunc {
 		if err := ctx.Bind(&req); err != nil {
 			fmt.Println("")
 		}
-
 		bizFn(ctx, req)
 	}
 }

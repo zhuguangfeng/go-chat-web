@@ -2,10 +2,10 @@ package repository
 
 import (
 	"context"
-	"github.com/zhuguangfeng/go-chat/go-chat/internal/domain"
-	"github.com/zhuguangfeng/go-chat/go-chat/internal/repository/cache"
-	"github.com/zhuguangfeng/go-chat/go-chat/internal/repository/dao"
-	"github.com/zhuguangfeng/go-chat/go-chat/model"
+	"github.com/zhuguangfeng/go-chat/internal/domain"
+	"github.com/zhuguangfeng/go-chat/internal/repository/cache"
+	"github.com/zhuguangfeng/go-chat/internal/repository/dao"
+	"github.com/zhuguangfeng/go-chat/model"
 )
 
 type UserRepository interface {

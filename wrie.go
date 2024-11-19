@@ -5,8 +5,8 @@ package main
 import (
 	"github.com/google/wire"
 	"github.com/zhuguangfeng/go-chat/go-chat/cmd/server/app"
-	iJwt "github.com/zhuguangfeng/go-chat/go-chat/internal/controller/v1/jwt"
 	"github.com/zhuguangfeng/go-chat/go-chat/internal/controller/v1/user"
+	iJwt "github.com/zhuguangfeng/go-chat/go-chat/internal/handler/v1/jwt"
 	"github.com/zhuguangfeng/go-chat/go-chat/internal/repository"
 	"github.com/zhuguangfeng/go-chat/go-chat/internal/repository/cache"
 	"github.com/zhuguangfeng/go-chat/go-chat/internal/repository/dao"

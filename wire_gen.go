@@ -7,14 +7,14 @@
 package main
 
 import (
-	"github.com/zhuguangfeng/go-chat/go-chat/cmd/server/app"
-	"github.com/zhuguangfeng/go-chat/go-chat/internal/controller/v1/jwt"
-	user2 "github.com/zhuguangfeng/go-chat/go-chat/internal/controller/v1/user"
-	"github.com/zhuguangfeng/go-chat/go-chat/internal/repository"
-	"github.com/zhuguangfeng/go-chat/go-chat/internal/repository/cache"
-	"github.com/zhuguangfeng/go-chat/go-chat/internal/repository/dao"
-	"github.com/zhuguangfeng/go-chat/go-chat/internal/service/user"
-	"github.com/zhuguangfeng/go-chat/go-chat/ioc"
+	"github.com/zhuguangfeng/go-chat/cmd/server/app"
+	"github.com/zhuguangfeng/go-chat/internal/handler/v1/jwt"
+	user2 "github.com/zhuguangfeng/go-chat/internal/handler/v1/user"
+	"github.com/zhuguangfeng/go-chat/internal/repository"
+	"github.com/zhuguangfeng/go-chat/internal/repository/cache"
+	"github.com/zhuguangfeng/go-chat/internal/repository/dao"
+	"github.com/zhuguangfeng/go-chat/internal/service/user"
+	"github.com/zhuguangfeng/go-chat/ioc"
 )
 
 // Injectors from wrie.go:
