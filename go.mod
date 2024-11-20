@@ -1,6 +1,8 @@
 module github.com/zhuguangfeng/go-chat/go-chat
 
-go 1.20
+go 1.21
+
+toolchain go1.23.0
 
 require (
 	github.com/gin-gonic/gin v1.10.0
