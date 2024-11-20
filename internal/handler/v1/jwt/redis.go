@@ -29,14 +29,14 @@ func NewJwtHandler(client redis.Cmdable) JwtHandler {
 
 type UserClaims struct {
 	jwt.RegisteredClaims
-	Uid       uint
+	Uid       int64
 	Ssid      string
 	UserAgent string
 }
 
 type RefreshClaims struct {
 	jwt.RegisteredClaims
-	Uid  uint
+	Uid  int64
 	Ssid string
 }
 
@@ -54,7 +54,7 @@ func (r *RedisJwtHandler) ExtractToken(ctx *gin.Context) string {
 }
 
 // SetLoginToken 设置用户登录token
-func (r *RedisJwtHandler) SetLoginToken(ctx *gin.Context, uid uint) error {
+func (r *RedisJwtHandler) SetLoginToken(ctx *gin.Context, uid int64) error {
 	ssid := uuid.New().String()
 	err := r.setRefreshToken(ctx, uid, ssid)
 	if err != nil {
@@ -64,7 +64,7 @@ func (r *RedisJwtHandler) SetLoginToken(ctx *gin.Context, uid uint) error {
 }
 
 // SetJwtToken 设置token
-func (r *RedisJwtHandler) SetJwtToken(ctx *gin.Context, uid uint, ssid string) error {
+func (r *RedisJwtHandler) SetJwtToken(ctx *gin.Context, uid int64, ssid string) error {
 	uc := UserClaims{
 		Uid:       uid,
 		Ssid:      ssid,
@@ -84,7 +84,7 @@ func (r *RedisJwtHandler) SetJwtToken(ctx *gin.Context, uid uint, ssid string) e
 }
 
 // setRefreshToken 设置刷新token
-func (r *RedisJwtHandler) setRefreshToken(ctx *gin.Context, uid uint, ssid string) error {
+func (r *RedisJwtHandler) setRefreshToken(ctx *gin.Context, uid int64, ssid string) error {
 	rc := RefreshClaims{
 		Uid:  uid,
 		Ssid: ssid,

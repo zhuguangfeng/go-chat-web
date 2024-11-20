@@ -2,11 +2,11 @@ package user
 
 import (
 	"context"
-	"fmt"
-	"github.com/zhuguangfeng/go-chat/go-chat/internal/domain"
+	"github.com/zhuguangfeng/go-chat/internal/domain"
+	"golang.org/x/crypto/bcrypt"
 
-	"github.com/zhuguangfeng/go-chat/go-chat/internal/common"
-	"github.com/zhuguangfeng/go-chat/go-chat/internal/repository"
+	"github.com/zhuguangfeng/go-chat/internal/repository"
+	"github.com/zhuguangfeng/go-chat/pkg/common"
 	"github.com/zhuguangfeng/zgf-base-toolbox/utils"
 )
 
@@ -27,19 +27,23 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 // UserLoginPwd 密码登录
 func (u *userService) UserLoginPwd(ctx context.Context, phone, password string) (domain.User, common.ErrorCode, error) {
 	user, err := u.userRepo.GetUserByPhone(ctx, phone)
-	fmt.Println(user)
-	fmt.Println(err)
 	if err != nil {
 		if utils.IsRecordNotFoundError(err) {
-			return domain.User{}, common.UserNotFound, err
+			return domain.User{}, common.SystemInternalError, err
 		}
+		return domain.User{}, common.SystemInternalError, err
 	}
 
-	////密码校验
-	//err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	//if err != nil {
-	//	return domain.User{}, common.UserInvalidPassword, err
-	//}
+	//密码校验
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		return domain.User{}, common.UserInvalidPassword, err
+	}
 
 	return user, common.NoErr, nil
+}
+
+func (u *userService) LoginSms(ctx context.Context, phone, code string) (domain.User, common.ErrorCode, error) {
+
+	return domain.User{}, common.NoErr, nil
 }

@@ -2,7 +2,7 @@ package dao
 
 import (
 	"context"
-	"github.com/zhuguangfeng/go-chat/go-chat/model"
+	"github.com/zhuguangfeng/go-chat/model"
 	"gorm.io/gorm"
 )
 

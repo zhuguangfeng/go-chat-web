@@ -1,16 +1,31 @@
-package server
+package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 func main() {
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	initViperWatch()
+	app := InitWebServer()
+
+	err := app.Server.Run()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func initViperWatch() {
+	cfile := pflag.String("config", "../../config/dev.yaml", "配置文件路径")
+	pflag.Parse()
+
+	viper.SetConfigType("yaml")
+	viper.SetConfigFile(*cfile)
+	viper.WatchConfig()
+
+	//读取配置
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(err)
+	}
 }

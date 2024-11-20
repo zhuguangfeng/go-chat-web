@@ -16,9 +16,9 @@ func (c ErrorCode) GetCodeMsg() (string, string) {
 }
 
 const (
-	NoErr ErrorCode = "200:成功"
+	NoErr               ErrorCode = "200:成功"
+	SystemInternalError ErrorCode = "GoChat.System.InternalError:服务内部错误"
 
-	UserInternalError   ErrorCode = "GoChat.User.InternalError:用户模块内部错误"
 	UserInvalidPassword ErrorCode = "GoChat.User.InvalidPassword:密码错误"
 	UserNotFound        ErrorCode = "GoChar.User.UserNotFound:账号不存在"
 )
