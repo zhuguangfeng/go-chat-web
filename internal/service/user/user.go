@@ -29,8 +29,9 @@ func (u *userService) UserLoginPwd(ctx context.Context, phone, password string) 
 	user, err := u.userRepo.GetUserByPhone(ctx, phone)
 	if err != nil {
 		if utils.IsRecordNotFoundError(err) {
-			return domain.User{}, common.UserNotFound, err
+			return domain.User{}, common.SystemInternalError, err
 		}
+		return domain.User{}, common.SystemInternalError, err
 	}
 
 	//密码校验

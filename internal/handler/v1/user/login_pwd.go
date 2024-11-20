@@ -24,7 +24,7 @@ func (u *UserHandler) LoginPwd(ctx *gin.Context, req dtoV1.UserPwdLoginReq) {
 	fmt.Println(user.ID)
 	err = u.SetLoginToken(ctx, user.ID)
 	if err != nil {
-		common.InternalError(ctx, common.UserInternalError, err)
+		common.InternalError(ctx, common.SystemInternalError, err)
 		return
 	}
 

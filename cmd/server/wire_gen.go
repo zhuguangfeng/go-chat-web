@@ -8,16 +8,18 @@ package main
 
 import (
 	"github.com/zhuguangfeng/go-chat/cmd/server/app"
+	dynamic2 "github.com/zhuguangfeng/go-chat/internal/handler/v1/dynamic"
 	"github.com/zhuguangfeng/go-chat/internal/handler/v1/jwt"
 	user2 "github.com/zhuguangfeng/go-chat/internal/handler/v1/user"
 	"github.com/zhuguangfeng/go-chat/internal/repository"
 	"github.com/zhuguangfeng/go-chat/internal/repository/cache"
 	"github.com/zhuguangfeng/go-chat/internal/repository/dao"
+	"github.com/zhuguangfeng/go-chat/internal/service/dynamic"
 	"github.com/zhuguangfeng/go-chat/internal/service/user"
 	"github.com/zhuguangfeng/go-chat/ioc"
 )
 
-// Injectors from wrie.go:
+// Injectors from wire.go:
 
 func InitWebServer() *app.App {
 	cmdable := ioc.InitRedisCmd()
@@ -27,8 +29,12 @@ func InitWebServer() *app.App {
 	userCache := cache.NewUserCache(cmdable)
 	userRepository := repository.NewUserRepository(userDao, userCache)
 	userService := user.NewUserService(userRepository)
-	userController := user2.NewUserController(jwtHandler, userService)
-	engine := ioc.InitWebServer(userController)
+	userHandler := user2.NewUserController(jwtHandler, userService)
+	dynamicDao := dao.NewDynamicDao(db)
+	dynamicRepository := repository.NewDynamicRepository(dynamicDao)
+	dynamicService := dynamic.NewDynamicService(dynamicRepository)
+	dynamicHandler := dynamic2.NewDynamicHandler(dynamicService)
+	engine := ioc.InitWebServer(userHandler, dynamicHandler)
 	appApp := &app.App{
 		Server: engine,
 	}

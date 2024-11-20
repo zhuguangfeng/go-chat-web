@@ -18,8 +18,8 @@ type UserHandler struct {
 func NewUserController(jwtHandler iJwt.JwtHandler, userSvc user.UserService) *UserHandler {
 	return &UserHandler{
 		JwtHandler: jwtHandler,
-		userSvc:    userSvc}
-
+		userSvc:    userSvc,
+	}
 }
 
 func (u *UserHandler) RegisterRouter(router *gin.Engine) {
