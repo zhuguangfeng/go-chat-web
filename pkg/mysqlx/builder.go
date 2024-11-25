@@ -1,7 +1,6 @@
 package mysqlx
 
 import (
-	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -33,11 +32,16 @@ func (b *Builder) WithPagination(pageNum, pageSize int) *Builder {
 	return b
 }
 
-func (b *Builder) WithQuery(conditions []Condition) *Builder {
-	for _, condition := range conditions {
-		if condition.Val != "" {
-			b.DB = b.DB.Where(fmt.Sprintf("%s %s %s", condition.Key, condition.Where, condition.Val))
-		}
+func (b *Builder) WithLike(key, val string) *Builder {
+	if val != "" {
+		b.DB = b.DB.Where("? like ?", "%"+key+"%")
+	}
+	return b
+}
+
+func (b *Builder) WithEqual(key, val string) *Builder {
+	if val != "" {
+		b.DB = b.DB.Where("? = ?", key, val)
 	}
 	return b
 }
