@@ -1,6 +1,8 @@
 module github.com/zhuguangfeng/go-chat
 
-go 1.20
+go 1.21
+
+toolchain go1.23.0
 
 require (
 	github.com/alibabacloud-go/dysmsapi-20170525/v4 v4.1.0
