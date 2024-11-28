@@ -11,6 +11,7 @@ import (
 
 type UserCache interface {
 	SetUser(ctx context.Context, user domain.User) error
+	GetUser(ctx context.Context, userId int64) (domain.User, error)
 }
 
 type RedisUserCache struct {
@@ -22,19 +23,34 @@ type RedisUserCache struct {
 func NewUserCache(redisCli redis.Cmdable) UserCache {
 	return &RedisUserCache{
 		redisCli:   redisCli,
-		keyPrefix:  "user:userId_",
+		keyPrefix:  "user:userInfo:userId_",
 		expiration: time.Hour * 24 * 7,
 	}
 }
 
 // SetUser 缓存用户信息
-func (u *RedisUserCache) SetUser(ctx context.Context, user domain.User) error {
-	key := fmt.Sprintf("%s%d:", u.keyPrefix, user.ID)
+func (cache *RedisUserCache) SetUser(ctx context.Context, user domain.User) error {
+	key := fmt.Sprintf("%s%d:", cache.keyPrefix, user.ID)
 
 	val, err := json.Marshal(user)
 	if err != nil {
 		return err
 	}
 
-	return u.redisCli.Set(ctx, key, val, u.expiration).Err()
+	return cache.redisCli.Set(ctx, key, val, cache.expiration).Err()
+}
+
+// GetUser 获取用户信息
+func (cache *RedisUserCache) GetUser(ctx context.Context, userID int64) (domain.User, error) {
+	key := fmt.Sprintf("%s%d:", cache.keyPrefix, userID)
+
+	userBytes, err := cache.redisCli.Get(ctx, key).Bytes()
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	var res domain.User
+	err = json.Unmarshal(userBytes, &res)
+
+	return res, err
 }

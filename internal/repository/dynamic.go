@@ -6,7 +6,6 @@ import (
 	"github.com/zhuguangfeng/go-chat/internal/repository/dao"
 	"github.com/zhuguangfeng/go-chat/model"
 	"github.com/zhuguangfeng/go-chat/pkg/ekit/slice"
-	"github.com/zhuguangfeng/go-chat/pkg/mysqlx"
 )
 
 type DynamicRepository interface {
@@ -14,7 +13,7 @@ type DynamicRepository interface {
 	DeleteDynamic(ctx context.Context, id int64, uid int64) error
 	ChangeDynamic(ctx context.Context, dynamic domain.Dynamic) error
 	DetailDynamic(ctx context.Context, id int64) (domain.Dynamic, error)
-	ListDynamic(ctx context.Context, pageNum, pageSize int, conditions []mysqlx.Condition) ([]domain.Dynamic, int64, error)
+	ListDynamic(ctx context.Context, pageNum, pageSize int, searchKey string) ([]domain.Dynamic, int64, error)
 }
 
 type dynamicRepository struct {
@@ -52,10 +51,10 @@ func (d *dynamicRepository) DetailDynamic(ctx context.Context, id int64) (domain
 }
 
 // ListDynamic 动态列表
-func (d *dynamicRepository) ListDynamic(ctx context.Context, pageNum, pageSize int, conditions []mysqlx.Condition) ([]domain.Dynamic, int64, error) {
-	dynamics, err := d.dynamicDao.ListDynamic(ctx, pageNum, pageSize, conditions)
+func (d *dynamicRepository) ListDynamic(ctx context.Context, pageNum, pageSize int, searchKey string) ([]domain.Dynamic, int64, error) {
+	dynamics, err := d.dynamicDao.ListDynamic(ctx, pageNum, pageSize, searchKey)
 	if err == nil {
-		count, err := d.dynamicDao.FindDynamicCount(ctx, conditions)
+		count, err := d.dynamicDao.FindDynamicCount(ctx, searchKey)
 		if err != nil {
 			//可以返回错误 也可以降级 返回dynamic数据 不返回总条数
 			// TODO 日志

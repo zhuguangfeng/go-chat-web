@@ -8,8 +8,8 @@ import (
 )
 
 type ActivityDao interface {
-	InsertActivity(ctx context.Context, activity model.Activity) error
-	UpdateActivity(ctx context.Context, activity model.Activity) error
+	InsertActivity(ctx context.Context, activity model.Activity, review model.Review) error
+	UpdateActivity(ctx context.Context, activity model.Activity, review model.Review) error
 	DeleteActivity(ctx context.Context, id int64) error
 	DetailActivity(ctx context.Context, id int64) (model.Activity, error)
 	ListActivity(ctx context.Context, pageNum, pageSize int, searchKey string) ([]model.Activity, error)
@@ -27,13 +27,26 @@ func NewActivityDao(db *gorm.DB) ActivityDao {
 }
 
 // InsertActivity 插入活动
-func (dao *GormActivityDao) InsertActivity(ctx context.Context, activity model.Activity) error {
-	return dao.db.WithContext(ctx).Create(&activity).Error
+func (dao *GormActivityDao) InsertActivity(ctx context.Context, activity model.Activity, review model.Review) error {
+	return dao.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		err := tx.Create(&activity).Error
+		if err == nil {
+			review.BizID = activity.ID
+			return tx.Create(&review).Error
+		}
+		return err
+	})
 }
 
 // UpdateActivity 修改活动
-func (dao *GormActivityDao) UpdateActivity(ctx context.Context, activity model.Activity) error {
-	return dao.db.WithContext(ctx).Where("id = ?", activity.ID).Updates(&activity).Error
+func (dao *GormActivityDao) UpdateActivity(ctx context.Context, activity model.Activity, review model.Review) error {
+	return dao.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		err := tx.Where("id = ?", activity.ID).Updates(&activity).Error
+		if err == nil {
+			return tx.Where("biz = ? and biz_id = ?", "activity", activity.ID).Updates(&review).Error
+		}
+		return err
+	})
 }
 
 // DeleteActivity 删除活动

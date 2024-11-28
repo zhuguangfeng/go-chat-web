@@ -2,13 +2,8 @@ package mysqlx
 
 import (
 	"gorm.io/gorm"
+	"reflect"
 )
-
-type Condition struct {
-	Key   string
-	Where string
-	Val   string
-}
 
 type Builder struct {
 	DB *gorm.DB
@@ -34,14 +29,20 @@ func (b *Builder) WithPagination(pageNum, pageSize int) *Builder {
 
 func (b *Builder) WithLike(key, val string) *Builder {
 	if val != "" {
-		b.DB = b.DB.Where("? like ?", "%"+key+"%")
+		b.DB = b.DB.Where("? like ?", key, "%"+key+"%")
 	}
 	return b
 }
 
-func (b *Builder) WithEqual(key, val string) *Builder {
-	if val != "" {
-		b.DB = b.DB.Where("? = ?", key, val)
+func (b *Builder) WithEqual(key string, val any) *Builder {
+	// 获取 val 的反射值
+	valValue := reflect.ValueOf(val)
+
+	// 如果 val 是 nil 或者是类型的零值，则不添加 Where 条件
+	if val == nil || valValue.Kind() == reflect.Ptr && valValue.IsNil() || valValue.IsZero() {
+		return b
 	}
+
+	b.DB = b.DB.Where("? = ?", key, val)
 	return b
 }

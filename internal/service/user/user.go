@@ -5,13 +5,14 @@ import (
 	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/zhuguangfeng/go-chat/internal/common"
 	"github.com/zhuguangfeng/go-chat/internal/repository"
-	"github.com/zhuguangfeng/go-chat/pkg/common"
 	"github.com/zhuguangfeng/zgf-base-toolbox/utils"
 )
 
 type UserService interface {
 	UserLoginPwd(ctx context.Context, phone, password string) (domain.User, common.ErrorCode, error)
+	UserDetail(ctx context.Context, userID int64) (domain.User, error)
 }
 
 type userService struct {
@@ -25,8 +26,8 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 }
 
 // UserLoginPwd 密码登录
-func (u *userService) UserLoginPwd(ctx context.Context, phone, password string) (domain.User, common.ErrorCode, error) {
-	user, err := u.userRepo.GetUserByPhone(ctx, phone)
+func (svc *userService) UserLoginPwd(ctx context.Context, phone, password string) (domain.User, common.ErrorCode, error) {
+	user, err := svc.userRepo.GetUserByPhone(ctx, phone)
 	if err != nil {
 		if utils.IsRecordNotFoundError(err) {
 			return domain.User{}, common.SystemInternalError, err
@@ -43,7 +44,11 @@ func (u *userService) UserLoginPwd(ctx context.Context, phone, password string) 
 	return user, common.NoErr, nil
 }
 
-func (u *userService) LoginSms(ctx context.Context, phone, code string) (domain.User, common.ErrorCode, error) {
+func (svc *userService) LoginSms(ctx context.Context, phone, code string) (domain.User, common.ErrorCode, error) {
 
 	return domain.User{}, common.NoErr, nil
+}
+
+func (svc *userService) UserDetail(ctx context.Context, userID int64) (domain.User, error) {
+	return svc.userRepo.GetUserByID(ctx, userID)
 }

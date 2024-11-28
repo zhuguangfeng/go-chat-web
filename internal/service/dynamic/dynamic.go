@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"github.com/zhuguangfeng/go-chat/internal/repository"
-	"github.com/zhuguangfeng/go-chat/pkg/mysqlx"
 )
 
 type DynamicService interface {
@@ -12,7 +11,7 @@ type DynamicService interface {
 	DeleteDynamic(ctx context.Context, id int64, uid int64) error
 	ChangeDynamic(ctx context.Context, dynamic domain.Dynamic) error
 	DetailDynamic(ctx context.Context, id int64) (domain.Dynamic, error)
-	ListDynamic(ctx context.Context, pageSize, pageNum int, conditions []mysqlx.Condition) ([]domain.Dynamic, int64, error)
+	ListDynamic(ctx context.Context, pageSize, pageNum int, searchKey string) ([]domain.Dynamic, int64, error)
 }
 
 type dynamicService struct {
@@ -41,6 +40,6 @@ func (svc *dynamicService) DetailDynamic(ctx context.Context, id int64) (domain.
 	return svc.dynamicRepo.DetailDynamic(ctx, id)
 }
 
-func (svc *dynamicService) ListDynamic(ctx context.Context, pageSize, pageNum int, conditions []mysqlx.Condition) ([]domain.Dynamic, int64, error) {
-	return svc.dynamicRepo.ListDynamic(ctx, pageSize, pageNum, conditions)
+func (svc *dynamicService) ListDynamic(ctx context.Context, pageSize, pageNum int, searchKey string) ([]domain.Dynamic, int64, error) {
+	return svc.dynamicRepo.ListDynamic(ctx, pageSize, pageNum, searchKey)
 }
