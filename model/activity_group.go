@@ -7,7 +7,6 @@ const (
 
 type Group struct {
 	Base
-
 	ActivityID   int64  `gorm:"column:activity_id;type:bigint;not null;default:0;comment:活动ID" json:"activityId"`
 	GroupName    string `gorm:"column:group_name;type:varchar(255);not null;default:'';comment:活动群名" json:"name"`
 	PeopleNumber int64  `gorm:"column:six;type:int;not null;default:0;comment:群人数" json:"peopleNumber"`

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"github.com/zhuguangfeng/go-chat/internal/repository/cache"
 	"github.com/zhuguangfeng/go-chat/internal/repository/dao"
@@ -51,11 +52,16 @@ func (repo *CacheUserRepository) GetUserByID(ctx context.Context, id int64) (dom
 		return user, nil
 	}
 
-	//TODO 日志
 	userM, err := repo.userDao.FindUserByID(ctx, id)
 	if err != nil {
 		return domain.User{}, err
 	}
+
+	err = repo.userCache.SetUser(ctx, user)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	return repo.toDomainUser(userM), nil
 }
 

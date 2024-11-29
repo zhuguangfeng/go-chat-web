@@ -1,19 +1,38 @@
 package activity
 
 import (
+	"github.com/gin-gonic/gin"
+	"github.com/zhuguangfeng/go-chat/internal/common"
 	"github.com/zhuguangfeng/go-chat/internal/domain"
+	"github.com/zhuguangfeng/go-chat/internal/handler/v1/jwt"
 	"github.com/zhuguangfeng/go-chat/internal/service/activity"
 	"github.com/zhuguangfeng/go-chat/internal/service/user"
+	"github.com/zhuguangfeng/go-chat/pkg/ginx"
+	"github.com/zhuguangfeng/go-chat/pkg/logger"
 )
 
 type ActivityHandler struct {
+	logger      logger.Logger
 	activitySvc activity.ActivityService
 	userSvc     user.UserService
 }
 
-func NewActivityHandler(activitySvc activity.ActivityService) *ActivityHandler {
+func NewActivityHandler(logger logger.Logger, activitySvc activity.ActivityService, userSvc user.UserService) *ActivityHandler {
 	return &ActivityHandler{
+		logger:      logger,
 		activitySvc: activitySvc,
+		userSvc:     userSvc,
+	}
+}
+
+func (hdl *ActivityHandler) RegisterRouter(router *gin.Engine) {
+	activityG := router.Group(common.GoChatServicePath + "/activity")
+	{
+		activityG.POST("/create", ginx.WrapBodyAndClaims[CreateActivityReq, jwt.UserClaims](hdl.CreateActivity))
+		activityG.POST("/cancel", ginx.WrapBodyAndClaims[BaseReq, jwt.UserClaims](hdl.CancelActivity))
+		activityG.POST("/change", ginx.WrapBodyAndClaims[ChangeActivityReq, jwt.UserClaims](hdl.ChangeActivity))
+		activityG.GET("/detail", hdl.ActivityDetail)
+		activityG.POST("/list", hdl.ActivityList)
 	}
 }
 
@@ -22,7 +41,7 @@ type BaseReq struct {
 }
 
 type CreateActivityReq struct {
-	UserID          int64    `json:"user" dc:"活动发起人"`
+	UserID          int64    `json:"userId" dc:"活动发起人"`
 	Title           string   `json:"title" dc:"活动标题"`
 	Desc            string   `json:"desc" dc:"活动描述"`
 	Media           []string `json:"media" dc:"资源 视频或图片"`
@@ -32,7 +51,7 @@ type CreateActivityReq struct {
 	Visibility      uint     `json:"visibility" dc:"可见度"`
 	MaxPeopleNumber int64    `json:"maxPeopleNumber" dc:"最大报名人数"`
 	Address         string   `json:"address" dc:"活动地址"`
-	Category        int64    `json:"category" dc:"活动分类"`
+	Category        uint     `json:"category" dc:"活动分类"`
 	StartTime       uint     `json:"startTime" dc:"活动开始时间"`
 	DeadlineTime    uint     `json:"deadlineTime" dc:"活动截止时间"`
 }
@@ -55,7 +74,7 @@ type ActivityData struct {
 	Visibility      uint     `json:"visibility,omitempty" dc:"可见度"`
 	MaxPeopleNumber int64    `json:"maxPeopleNumber,omitempty" dc:"最大报名人数"`
 	Address         string   `json:"address,omitempty" dc:"活动地址"`
-	Category        int64    `json:"category,omitempty" dc:"活动分类"`
+	Category        uint     `json:"category,omitempty" dc:"活动分类"`
 	StartTime       uint     `json:"startTime,omitempty" dc:"活动开始时间"`
 	DeadlineTime    uint     `json:"deadlineTime,omitempty" dc:"活动截止时间"`
 	Status          uint     `json:"status,omitempty" dc:"活动截止时间"`

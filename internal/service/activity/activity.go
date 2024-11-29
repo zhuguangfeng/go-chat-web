@@ -7,6 +7,7 @@ import (
 	"github.com/zhuguangfeng/go-chat/internal/common"
 	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"github.com/zhuguangfeng/go-chat/internal/repository"
+	"github.com/zhuguangfeng/go-chat/pkg/errorx"
 )
 
 type ActivityService interface {
@@ -51,9 +52,8 @@ func (svc *activityService) ChangeActivity(ctx context.Context, activity domain.
 	}
 
 	return svc.activityRepo.UpdateActivity(ctx, activity, domain.Review{
-		Biz:    "activity",
-		BizID:  activity.ID,
-		Status: common.ReviewStatusReviewCancel.Uint(),
+		Biz:   "activity",
+		BizID: activity.ID,
 	})
 }
 
@@ -64,8 +64,8 @@ func (svc *activityService) CancelActivity(ctx context.Context, activityID int64
 		return err
 	}
 
-	if activity.Status != common.ActivityStatusReviewPass.Uint() && activity.Status != common.ActivityStatusSignUp.Uint() {
-		return errors.New("该活动暂不能取消")
+	if activity.Status != common.ActivityStatusPendingReview.Uint() && activity.Status != common.ActivityStatusSignUp.Uint() {
+		return errorx.NewBizError(common.ActivityNotChange).WithError(nil)
 	}
 
 	return svc.activityRepo.UpdateActivity(ctx, domain.Activity{

@@ -5,12 +5,14 @@ package main
 import (
 	"github.com/google/wire"
 	"github.com/zhuguangfeng/go-chat/cmd/server/app"
+	"github.com/zhuguangfeng/go-chat/internal/handler/v1/activity"
 	"github.com/zhuguangfeng/go-chat/internal/handler/v1/dynamic"
 	iJwt "github.com/zhuguangfeng/go-chat/internal/handler/v1/jwt"
 	"github.com/zhuguangfeng/go-chat/internal/handler/v1/user"
 	"github.com/zhuguangfeng/go-chat/internal/repository"
 	"github.com/zhuguangfeng/go-chat/internal/repository/cache"
 	"github.com/zhuguangfeng/go-chat/internal/repository/dao"
+	activitySvc "github.com/zhuguangfeng/go-chat/internal/service/activity"
 	dynamicSvc "github.com/zhuguangfeng/go-chat/internal/service/dynamic"
 	userSvc "github.com/zhuguangfeng/go-chat/internal/service/user"
 	"github.com/zhuguangfeng/go-chat/ioc"
@@ -18,23 +20,32 @@ import (
 
 func InitWebServer() *app.App {
 	wire.Build(
+		ioc.InitLogger,
 		ioc.InitMysql,
 		ioc.InitRedisCmd,
 		ioc.InitWebServer,
+		ioc.InitGinMiddleware,
+
+		cache.NewUserCache,
 
 		dao.NewUserDao,
-		cache.NewUserCache,
 		dao.NewDynamicDao,
+		dao.NewReviewDao,
+		dao.NewActivityDao,
 
 		repository.NewUserRepository,
 		repository.NewDynamicRepository,
+		//repository.NewReviewRepository,
+		repository.NewActivityRepository,
 
 		userSvc.NewUserService,
 		dynamicSvc.NewDynamicService,
+		activitySvc.NewActivityService,
 
 		iJwt.NewJwtHandler,
 		user.NewUserController,
 		dynamic.NewDynamicHandler,
+		activity.NewActivityHandler,
 
 		wire.Struct(new(app.App), "*"),
 	)

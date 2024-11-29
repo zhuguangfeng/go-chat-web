@@ -4,13 +4,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/zhuguangfeng/go-chat/internal/common"
 	"github.com/zhuguangfeng/go-chat/internal/domain"
+	iJwt "github.com/zhuguangfeng/go-chat/internal/handler/v1/jwt"
+	"github.com/zhuguangfeng/go-chat/pkg/logger"
 )
 
-func (hdl *ActivityHandler) Create(ctx *gin.Context, req CreateActivityReq) {
+func (hdl *ActivityHandler) CreateActivity(ctx *gin.Context, req CreateActivityReq, uc iJwt.UserClaims) {
 	//创建活动
 	err := hdl.activitySvc.CreateActivity(ctx, domain.Activity{
 		Sponsor: domain.User{
-			ID: req.UserID,
+			ID: uc.Uid,
 		},
 		Title:           req.Title,
 		Desc:            req.Desc,
@@ -27,10 +29,10 @@ func (hdl *ActivityHandler) Create(ctx *gin.Context, req CreateActivityReq) {
 		Status:          common.ActivityStatusPendingReview.Uint(),
 	})
 	if err != nil {
-		//TODO
+		hdl.logger.Error("[activity.hdl.create]创建活动失败", logger.Error(err))
+		common.InternalError(ctx, err)
 		return
 	}
 
-	//发起活动审批
-
+	common.SuccessNoData(ctx)
 }

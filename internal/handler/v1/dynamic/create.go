@@ -2,9 +2,9 @@ package dynamic
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/zhuguangfeng/go-chat/internal/common"
 	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"github.com/zhuguangfeng/go-chat/internal/handler/v1/jwt"
-	"github.com/zhuguangfeng/go-chat/pkg/common"
 )
 
 type CreateDynamicReq struct {
@@ -26,7 +26,7 @@ func (hdl *DynamicHandler) CreateDynamic(ctx *gin.Context, req CreateDynamicReq,
 		Media:       req.Media,
 		Visibility:  req.Visibility,
 		DynamicType: req.DynamicType,
-		Status:      common.DynamicStatusUnderReview.Int64(),
+		Status:      common.DynamicStatusUnderReview.Uint(),
 	}
 
 	err := hdl.dynamicSvc.CreateDynamic(ctx, dynamic)

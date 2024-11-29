@@ -3,15 +3,11 @@ package user
 import (
 	"context"
 	"github.com/zhuguangfeng/go-chat/internal/domain"
-	"golang.org/x/crypto/bcrypt"
-
-	"github.com/zhuguangfeng/go-chat/internal/common"
 	"github.com/zhuguangfeng/go-chat/internal/repository"
-	"github.com/zhuguangfeng/zgf-base-toolbox/utils"
 )
 
 type UserService interface {
-	UserLoginPwd(ctx context.Context, phone, password string) (domain.User, common.ErrorCode, error)
+	UserLoginPwd(ctx context.Context, phone, password string) (domain.User, error)
 	UserDetail(ctx context.Context, userID int64) (domain.User, error)
 }
 
@@ -26,27 +22,25 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 }
 
 // UserLoginPwd 密码登录
-func (svc *userService) UserLoginPwd(ctx context.Context, phone, password string) (domain.User, common.ErrorCode, error) {
+func (svc *userService) UserLoginPwd(ctx context.Context, phone, password string) (domain.User, error) {
 	user, err := svc.userRepo.GetUserByPhone(ctx, phone)
 	if err != nil {
-		if utils.IsRecordNotFoundError(err) {
-			return domain.User{}, common.SystemInternalError, err
-		}
-		return domain.User{}, common.SystemInternalError, err
+
+		return domain.User{}, err
 	}
 
 	//密码校验
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if err != nil {
-		return domain.User{}, common.UserInvalidPassword, err
-	}
+	//err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	//if err != nil {
+	//	return domain.User{}, errorx.NewBizError(common.UserInvalidPassword).WithError(err)
+	//}
 
-	return user, common.NoErr, nil
+	return user, nil
 }
 
-func (svc *userService) LoginSms(ctx context.Context, phone, code string) (domain.User, common.ErrorCode, error) {
+func (svc *userService) LoginSms(ctx context.Context, phone, code string) (domain.User, error) {
 
-	return domain.User{}, common.NoErr, nil
+	return domain.User{}, nil
 }
 
 func (svc *userService) UserDetail(ctx context.Context, userID int64) (domain.User, error) {

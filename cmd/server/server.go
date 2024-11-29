@@ -9,14 +9,14 @@ func main() {
 	initViperWatch()
 	app := InitWebServer()
 
-	err := app.Server.Run()
+	err := app.Server.Run(":8888")
 	if err != nil {
 		panic(err)
 	}
 }
 
 func initViperWatch() {
-	cfile := pflag.String("config", "../../config/dev.yaml", "配置文件路径")
+	cfile := pflag.String("config", "./config/dev.yaml", "配置文件路径")
 	pflag.Parse()
 
 	viper.SetConfigType("yaml")

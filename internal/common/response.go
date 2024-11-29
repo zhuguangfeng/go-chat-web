@@ -1,15 +1,17 @@
 package common
 
 import (
+	"errors"
+	"github.com/zhuguangfeng/go-chat/pkg/errorx"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Response struct {
-	StatusCode int         `json:"statusCode" example:"900"`                           // 操作状态码：成功200，失败-1
+	StatusCode int         `json:"statusCode" example:"200"`                           // 操作状态码：成功200，失败-1
 	Error      string      `json:"error,omitempty" example:"GoChat.User.UnAuthorized"` // 业务状态码，如果操作状态码为200，则为成功业务状态码，如果操作状态码为-1，则为失败业务状态码
-	Message    string      `json:"message,omitempty" example:"没有任务操作权限"`       // 业务状态消息，如果操作状态码为200，则为成功业务消息，如果操作状态码为-1，则为失败业务消息
+	Message    string      `json:"message,omitempty" example:"没有任务操作权限"`               // 业务状态消息，如果操作状态码为200，则为成功业务消息，如果操作状态码为-1，则为失败业务消息
 	ReturnObj  interface{} `json:"returnObj,omitempty"`                                // 业务数据
 }
 
@@ -52,7 +54,7 @@ func errorResponse(ctx *gin.Context, httpStatus int, code, msg string) {
 	})
 }
 
-func wrappedErrorResponse(ctx *gin.Context, httpStatus int, code ErrorCode, msg string, err error) {
+func wrappedErrorResponse(ctx *gin.Context, httpStatus int, code errorx.ErrorCode, msg string, err error) {
 	a, b := code.GetCodeMsg()
 	if msg != "" {
 		b += ": " + msg
@@ -60,18 +62,21 @@ func wrappedErrorResponse(ctx *gin.Context, httpStatus int, code ErrorCode, msg 
 	errorResponse(ctx, httpStatus, a, b)
 }
 
-func BadRequestMessage(c *gin.Context, code ErrorCode, msg string, err error) {
-	wrappedErrorResponse(c, http.StatusOK, code, msg, err)
-}
-
-func BadRequest(c *gin.Context, code ErrorCode, err error) {
+func BadRequest(c *gin.Context, code errorx.ErrorCode, err error) {
 	wrappedErrorResponse(c, http.StatusOK, code, "", err)
 }
 
-func InternalError(c *gin.Context, code ErrorCode, err error) {
-	wrappedErrorResponse(c, http.StatusOK, code, "", err)
+func InternalError(c *gin.Context, err error) {
+	var bizErr errorx.BizError
+	ok := errors.As(err, &bizErr)
+	if ok {
+		wrappedErrorResponse(c, http.StatusOK, bizErr.ErrorCode(), "", bizErr)
+	} else {
+		wrappedErrorResponse(c, http.StatusOK, SystemInternalError, "", err)
+	}
+
 }
 
-func HttpErrorResp(c *gin.Context, httpStatus int, code ErrorCode, msg string, err error) {
+func HttpErrorResp(c *gin.Context, httpStatus int, code errorx.ErrorCode, msg string, err error) {
 	wrappedErrorResponse(c, httpStatus, code, msg, err)
 }

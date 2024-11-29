@@ -13,7 +13,7 @@ type Activity struct {
 	MaxPeopleNumber     int64    `json:"maxPeopleNumber" dc:"最大报名人数"`
 	CurrentPeopleNumber int64    `json:"currentPeopleNumber" dc:"当前报名人数"`
 	Address             string   `json:"address" dc:"活动地址"`
-	Category            int64    `json:"category" dc:"活动分类"`
+	Category            uint     `json:"category" dc:"活动分类"`
 	StartTime           uint     `json:"startTime" dc:"活动开始时间"`
 	DeadlineTime        uint     `json:"deadlineTime" dc:"活动截止时间"`
 	Status              uint     `json:"status" dc:"活动状态"`

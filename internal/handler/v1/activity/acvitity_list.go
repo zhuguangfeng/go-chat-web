@@ -5,6 +5,7 @@ import (
 	"github.com/zhuguangfeng/go-chat/internal/common"
 	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"github.com/zhuguangfeng/go-chat/pkg/ekit/slice"
+	"github.com/zhuguangfeng/go-chat/pkg/logger"
 	"github.com/zhuguangfeng/go-chat/pkg/utils"
 )
 
@@ -16,7 +17,14 @@ func (hdl *ActivityHandler) ActivityList(ctx *gin.Context) {
 
 	activitys, count, err := hdl.activitySvc.ActivityList(ctx, pageNum, pageSize, searchKey)
 	if err != nil {
-		//TODO
+		hdl.logger.Error("[activity.hdl.list]获取活动列表失败",
+			logger.Int("pageNum", pageNum),
+			logger.Int("pageSize", pageSize),
+			logger.String("searchKey", searchKey),
+			logger.Error(err),
+		)
+		common.InternalError(ctx, err)
+		return
 	}
 
 	common.Success(ctx, common.ListObj{

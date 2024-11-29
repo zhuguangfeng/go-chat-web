@@ -1,50 +1,23 @@
 package common
 
-import "strings"
+import (
+	"github.com/zhuguangfeng/go-chat/pkg/errorx"
+)
 
 const (
 	StatusOk  int = 200
 	StatusErr int = -1
 )
 
-type ErrorCode string
-
-type BizError interface {
-	Error() string
-	ErrorCode() string
-}
-
-type ErrorWrapper struct {
-	err     error
-	errCode ErrorCode
-}
-
-func NewErrorWrapper(errorCode ErrorCode) *ErrorWrapper {
-	return &ErrorWrapper{
-		errCode: errorCode,
-	}
-}
-
-func (e *ErrorWrapper) WithError(err error) *ErrorWrapper {
-	e.err = err
-	return e
-}
-
-func (e *ErrorWrapper) WithErrorCode(errorCode ErrorCode) *ErrorWrapper {
-	e.errCode = errorCode
-	return e
-}
-
-func (c ErrorCode) GetCodeMsg() (string, string) {
-	str := string(c)
-	index := strings.Index(str, ":")
-	return str[:index], str[index+1:]
-}
-
 const (
-	NoErr               ErrorCode = "200:成功"
-	SystemInternalError ErrorCode = "GoChat.System.InternalError:服务内部错误"
+	NoErr               errorx.ErrorCode = "200:成功"
+	SystemInternalError errorx.ErrorCode = "GoChat.System.InternalError:服务内部错误"
+	InvalidParam        errorx.ErrorCode = "GoChat.System.InvalidParam:请求参数有误"
 
-	UserInvalidPassword ErrorCode = "GoChat.User.InvalidPassword:密码错误"
-	UserNotFound        ErrorCode = "GoChar.User.UserNotFound:账号不存在"
+	UserInvalidPassword errorx.ErrorCode = "GoChat.User.InvalidPassword:密码错误"
+	UserNotFound        errorx.ErrorCode = "GoChar.User.UserNotFound:账号不存在"
+
+	ActivityNotFound  errorx.ErrorCode = "GoChar.Activity.ActivityNotFound:活动不存在"
+	ActivityNotChange errorx.ErrorCode = "GoChar.Activity.NotChange:该活动暂时不能修改"
+	ActivityNotCancel errorx.ErrorCode = "GoChar.Activity.NotCancel:该活动暂时不能取消"
 )

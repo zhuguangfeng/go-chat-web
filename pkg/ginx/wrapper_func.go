@@ -3,6 +3,7 @@ package ginx
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/zhuguangfeng/go-chat/internal/common"
 	"net/http"
 )
 
@@ -10,8 +11,8 @@ func WrapBody[Req any](bizFn func(ctx *gin.Context, req Req)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req Req
 		if err := ctx.Bind(&req); err != nil {
-			//TODO 日志
-
+			common.BadRequest(ctx, common.InvalidParam, err)
+			return
 		}
 		bizFn(ctx, req)
 	}
@@ -21,7 +22,7 @@ func WrapBodyAndClaims[Req any, Claims jwt.Claims](bizFn func(ctx *gin.Context, 
 	return func(ctx *gin.Context) {
 		var req Req
 		if err := ctx.Bind(&req); err != nil {
-
+			common.BadRequest(ctx, common.InvalidParam, err)
 			return
 		}
 

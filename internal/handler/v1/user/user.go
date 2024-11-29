@@ -4,9 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 
 	dtoV1 "github.com/zhuguangfeng/go-chat/dto/v1"
+	"github.com/zhuguangfeng/go-chat/internal/common"
 	iJwt "github.com/zhuguangfeng/go-chat/internal/handler/v1/jwt"
 	"github.com/zhuguangfeng/go-chat/internal/service/user"
-	"github.com/zhuguangfeng/go-chat/pkg/common"
 	"github.com/zhuguangfeng/go-chat/pkg/ginx"
 )
 
