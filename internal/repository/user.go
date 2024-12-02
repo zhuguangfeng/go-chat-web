@@ -2,11 +2,13 @@ package repository
 
 import (
 	"context"
-	"fmt"
+	"github.com/zhuguangfeng/go-chat/internal/common"
 	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"github.com/zhuguangfeng/go-chat/internal/repository/cache"
 	"github.com/zhuguangfeng/go-chat/internal/repository/dao"
 	"github.com/zhuguangfeng/go-chat/model"
+	"github.com/zhuguangfeng/go-chat/pkg/errorx"
+	"github.com/zhuguangfeng/go-chat/pkg/utils"
 )
 
 type UserRepository interface {
@@ -31,8 +33,12 @@ func NewUserRepository(userDao dao.UserDao, userCache cache.UserCache) UserRepos
 func (repo *CacheUserRepository) GetUserByPhone(ctx context.Context, phone string) (domain.User, error) {
 	user, err := repo.userDao.FindUserByPhone(ctx, phone)
 	if err != nil {
-		return domain.User{}, err
+		if utils.IsRecordNotFoundError(err) {
+			return domain.User{}, errorx.NewBizError(common.UserNotFound).WithError(err)
+		}
+		return domain.User{}, errorx.NewBizError(common.SystemInternalError).WithError(err)
 	}
+
 	return repo.toDomainUser(user), nil
 }
 
@@ -59,7 +65,7 @@ func (repo *CacheUserRepository) GetUserByID(ctx context.Context, id int64) (dom
 
 	err = repo.userCache.SetUser(ctx, user)
 	if err != nil {
-		fmt.Println(err)
+
 	}
 
 	return repo.toDomainUser(userM), nil
@@ -82,13 +88,38 @@ func (repo *CacheUserRepository) GetUsersByIDs(ctx context.Context, ids []int64)
 
 func (repo *CacheUserRepository) toModelUser(user domain.User) model.User {
 	return model.User{
-		UserName: user.UserName,
+		Base: model.Base{
+			ID: user.ID,
+		},
+		UserName:      user.UserName,
+		Password:      user.Password,
+		Phone:         user.Phone,
+		Age:           user.Age,
+		Gender:        user.Gender,
+		IsRealName:    user.IsRealName,
+		Name:          user.Name,
+		IDCard:        user.IDCard,
+		LoginIp:       user.LoginIp,
+		LastLoginTime: user.LastLoginTime,
+		Status:        user.Status,
 	}
 }
 
 func (repo *CacheUserRepository) toDomainUser(user model.User) domain.User {
 	return domain.User{
-		ID:       user.ID,
-		UserName: user.UserName,
+		ID:            user.ID,
+		UserName:      user.UserName,
+		Password:      user.Password,
+		Phone:         user.Phone,
+		Age:           user.Age,
+		Gender:        user.Gender,
+		IsRealName:    user.IsRealName,
+		Name:          user.Name,
+		IDCard:        user.IDCard,
+		LoginIp:       user.LoginIp,
+		LastLoginTime: user.LastLoginTime,
+		Status:        user.Status,
+		CreatedTime:   user.CreatedAt,
+		UpdatedTime:   user.UpdatedAt,
 	}
 }

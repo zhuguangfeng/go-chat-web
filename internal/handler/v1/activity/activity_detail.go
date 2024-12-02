@@ -23,7 +23,7 @@ func (hdl *ActivityHandler) ActivityDetail(ctx *gin.Context) {
 		return
 	}
 
-	activity.Sponsor, err = hdl.userSvc.UserDetail(ctx, activity.Sponsor.ID)
+	activity.Sponsor, err = hdl.userSvc.GetUserInfo(ctx, activity.Sponsor.ID)
 	if err != nil {
 		hdl.logger.Error("[activity.hdl.detail]获取活动详情用户信息失败",
 			logger.Int64("activityId", int64(id)),

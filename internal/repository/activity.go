@@ -115,10 +115,12 @@ func (repo *activityRepository) toReviewEntity(review domain.Review) model.Revie
 		Base: model.Base{
 			ID: review.ID,
 		},
-		UUID:   review.UUID,
-		Biz:    review.Biz,
-		BizID:  review.BizID,
-		Status: review.Status,
+		UUID:       review.UUID,
+		Biz:        review.Biz,
+		BizID:      review.BizID,
+		ReviewerID: review.Reviewer.ID,
+		Status:     review.Status,
+		ReviewTime: review.ReviewTime,
 	}
 }
 

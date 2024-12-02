@@ -1,0 +1,51 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "long"
+      },
+      "sponsorId": {
+        "type": "long"
+      },
+      "title": {
+        "type": "text"
+      },
+      "desc": {
+        "type": "text"
+      },
+      "media": {
+        "type": "keyword"
+      },
+      "ageRestrict": {
+        "type": "integer"
+      },
+      "CostRestrict": {
+        "type": "integer"
+      },
+      "visibility": {
+        "type": "integer"
+      },
+      "maxPeopleNumber": {
+        "type": "integer"
+      },
+      "CurrentPeopleNumber": {
+        "type": "integer"
+      },
+      "address": {
+        "type": "text"
+      },
+      "category": {
+        "type": "integer"
+      },
+      "startTime": {
+        "type": "date"
+      },
+      "deadlineTime": {
+        "type": "date"
+      },
+      "status": {
+        "type": "integer"
+      }
+    }
+  }
+}

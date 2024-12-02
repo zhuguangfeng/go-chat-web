@@ -8,7 +8,8 @@ import (
 )
 
 type ReviewDao interface {
-	DetailReview(ctx context.Context, id int64) (model.Review, error)
+	UpdateReview(ctx context.Context, review model.Review) error
+	DetailReview(ctx context.Context, uuid string) (model.Review, error)
 	ListReview(ctx context.Context, pageNum, pageSize int, biz string, status uint) ([]model.Review, error)
 	FindReviewCount(ctx context.Context, biz string, status uint) (int64, error)
 }
@@ -24,10 +25,14 @@ func NewReviewDao(db *gorm.DB) ReviewDao {
 
 }
 
+func (dao *GormReviewDao) UpdateReview(ctx context.Context, review model.Review) error {
+	return dao.db.WithContext(ctx).Where("uuid = ?", review.UUID).Updates(&review).Error
+}
+
 // DetailReview 审核详情
-func (dao *GormReviewDao) DetailReview(ctx context.Context, id int64) (model.Review, error) {
+func (dao *GormReviewDao) DetailReview(ctx context.Context, uuid string) (model.Review, error) {
 	var res model.Review
-	err := dao.db.WithContext(ctx).Where("id = ?", id).First(&res).Error
+	err := dao.db.WithContext(ctx).Where("uuid = ?", uuid).First(&res).Error
 	if err != nil {
 		return model.Review{}, err
 	}

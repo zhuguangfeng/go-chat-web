@@ -1,12 +1,18 @@
 package domain
 
 type User struct {
-	ID       int64  `json:"id"`
-	UserName string `json:"username"`
-	Password string `json:"password"`
-	Phone    string `json:"phone"`
-	Name     string `json:"name"`
-	IDCard   string `json:"idCard"`
-	Age      int64  `json:"age"`
-	Gender   int64  `json:"gender"`
+	ID            int64  `json:"id"`
+	UserName      string `json:"username"`
+	Password      string `json:"password"`
+	Phone         string `json:"phone"`
+	Age           int64  `json:"age"`
+	Gender        uint   `json:"gender"`
+	IsRealName    bool   `json:"isRealName"`
+	Name          string `json:"name"`
+	IDCard        string `json:"idCard"`
+	LoginIp       string `json:"loginIp"`
+	LastLoginTime uint   `json:"lastTime"`
+	Status        uint   `json:"status"`
+	CreatedTime   uint   `json:"createdTime"`
+	UpdatedTime   uint   `json:"updatedTime"`
 }

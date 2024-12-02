@@ -6,6 +6,7 @@ import (
 	"github.com/zhuguangfeng/go-chat/internal/handler/v1/activity"
 	"github.com/zhuguangfeng/go-chat/internal/handler/v1/dynamic"
 	iJwt "github.com/zhuguangfeng/go-chat/internal/handler/v1/jwt"
+	"github.com/zhuguangfeng/go-chat/internal/handler/v1/review"
 	"github.com/zhuguangfeng/go-chat/internal/handler/v1/user"
 	"github.com/zhuguangfeng/go-chat/internal/middleware"
 	"github.com/zhuguangfeng/go-chat/pkg/logger"
@@ -16,12 +17,14 @@ import (
 func InitWebServer(mdls []gin.HandlerFunc, userHandler *user.UserHandler,
 	dynamicHandler *dynamic.DynamicHandler,
 	activityHandler *activity.ActivityHandler,
+	reviewHandler *review.ReviewHandler,
 ) *gin.Engine {
 	server := gin.Default()
 	server.Use(mdls...)
 	userHandler.RegisterRouter(server)
 	dynamicHandler.RegisterRouter(server)
 	activityHandler.RegisterRouter(server)
+	reviewHandler.RegisterRouter(server)
 
 	return server
 }

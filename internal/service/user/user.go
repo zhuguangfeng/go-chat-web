@@ -2,13 +2,16 @@ package user
 
 import (
 	"context"
+	"github.com/zhuguangfeng/go-chat/internal/common"
 	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"github.com/zhuguangfeng/go-chat/internal/repository"
+	"github.com/zhuguangfeng/go-chat/pkg/errorx"
+	"github.com/zhuguangfeng/go-chat/pkg/utils"
 )
 
 type UserService interface {
 	UserLoginPwd(ctx context.Context, phone, password string) (domain.User, error)
-	UserDetail(ctx context.Context, userID int64) (domain.User, error)
+	GetUserInfo(ctx context.Context, userID int64) (domain.User, error)
 }
 
 type userService struct {
@@ -25,8 +28,10 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 func (svc *userService) UserLoginPwd(ctx context.Context, phone, password string) (domain.User, error) {
 	user, err := svc.userRepo.GetUserByPhone(ctx, phone)
 	if err != nil {
-
-		return domain.User{}, err
+		if utils.IsRecordNotFoundError(err) {
+			return domain.User{}, errorx.NewBizError(common.UserNotFound).WithError(err)
+		}
+		return domain.User{}, errorx.NewBizError(common.SystemInternalError).WithError(err)
 	}
 
 	//密码校验
@@ -43,6 +48,6 @@ func (svc *userService) LoginSms(ctx context.Context, phone, code string) (domai
 	return domain.User{}, nil
 }
 
-func (svc *userService) UserDetail(ctx context.Context, userID int64) (domain.User, error) {
+func (svc *userService) GetUserInfo(ctx context.Context, userID int64) (domain.User, error) {
 	return svc.userRepo.GetUserByID(ctx, userID)
 }

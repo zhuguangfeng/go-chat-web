@@ -11,12 +11,14 @@ import (
 	activity2 "github.com/zhuguangfeng/go-chat/internal/handler/v1/activity"
 	dynamic2 "github.com/zhuguangfeng/go-chat/internal/handler/v1/dynamic"
 	"github.com/zhuguangfeng/go-chat/internal/handler/v1/jwt"
+	review2 "github.com/zhuguangfeng/go-chat/internal/handler/v1/review"
 	user2 "github.com/zhuguangfeng/go-chat/internal/handler/v1/user"
 	"github.com/zhuguangfeng/go-chat/internal/repository"
 	"github.com/zhuguangfeng/go-chat/internal/repository/cache"
 	"github.com/zhuguangfeng/go-chat/internal/repository/dao"
 	"github.com/zhuguangfeng/go-chat/internal/service/activity"
 	"github.com/zhuguangfeng/go-chat/internal/service/dynamic"
+	"github.com/zhuguangfeng/go-chat/internal/service/review"
 	"github.com/zhuguangfeng/go-chat/internal/service/user"
 	"github.com/zhuguangfeng/go-chat/ioc"
 )
@@ -43,7 +45,10 @@ func InitWebServer() *app.App {
 	activityRepository := repository.NewActivityRepository(logger, activityDao, reviewDao)
 	activityService := activity.NewActivityService(activityRepository, userRepository)
 	activityHandler := activity2.NewActivityHandler(logger, activityService, userService)
-	engine := ioc.InitWebServer(v, userHandler, dynamicHandler, activityHandler)
+	reviewRepository := repository.NewReviewRepository(reviewDao)
+	reviewService := review.NewReviewService(reviewRepository, activityRepository)
+	reviewHandler := review2.NewReviewHandler(reviewService)
+	engine := ioc.InitWebServer(v, userHandler, dynamicHandler, activityHandler, reviewHandler)
 	appApp := &app.App{
 		Server: engine,
 	}
