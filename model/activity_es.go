@@ -22,10 +22,12 @@ type ActivityEs struct {
 	CostRestrict        uint     `json:"CostRestrict"`
 	Visibility          uint     `json:"visibility"`
 	MaxPeopleNumber     int64    `json:"maxPeopleNumber"`
-	CurrentPeopleNumber int64    ` json:"CurrentPeopleNumber"`
+	CurrentPeopleNumber int64    `json:"CurrentPeopleNumber"`
 	Address             string   `json:"address"`
 	Category            uint     `json:"category"`
 	StartTime           uint     `json:"startTime"`
 	DeadlineTime        uint     `json:"deadlineTime"`
 	Status              uint     `json:"status"`
+	CreatedTime         uint     `json:"createdTime"`
+	UpdatedTime         uint     `json:"updatedTime"`
 }

@@ -35,19 +35,19 @@ func (dao *OlivereActivityEsDao) SearchActivity(ctx context.Context, searchReq d
 	//or 查询
 	or := elastic.NewBoolQuery().Should(titleQuery, descQuery)
 
-	addressQuery := elastic.NewMatchQuery("address", searchReq.Address)
-	ageRestrictQuery := elastic.NewTermQuery("ageRestrict", searchReq.AgeRestrict)
-	genderRestrictQuery := elastic.NewTermQuery("genderRestrict", searchReq.AgeRestrict)
-	costRestrictQuery := elastic.NewTermQuery("costRestrict", searchReq.CostRestrict)
-	visibilityQuery := elastic.NewTermQuery("visibility", searchReq.Visibility)
-	categoryQuery := elastic.NewTermQuery("category", searchReq.Category)
-	startTimeQuery := elastic.NewRangeQuery("startTime").Lte(searchReq.StartTime)
-	endTimeQuery := elastic.NewRangeQuery("startTime").Gte(searchReq.EndTime)
+	//addressQuery := elastic.NewMatchQuery("address", searchReq.Address)
+	//ageRestrictQuery := elastic.NewTermQuery("ageRestrict", searchReq.AgeRestrict)
+	//genderRestrictQuery := elastic.NewTermQuery("genderRestrict", searchReq.GenderRestrict)
+	//costRestrictQuery := elastic.NewTermQuery("costRestrict", searchReq.CostRestrict)
+	//visibilityQuery := elastic.NewTermQuery("visibility", searchReq.Visibility)
+	//categoryQuery := elastic.NewTermQuery("category", searchReq.Category)
+	//startTimeQuery := elastic.NewRangeQuery("startTime").Lte(searchReq.StartTime)
+	//endTimeQuery := elastic.NewRangeQuery("startTime").Gte(searchReq.EndTime)
 
 	//and查询
-	and := elastic.NewBoolQuery().Must(addressQuery, ageRestrictQuery, genderRestrictQuery, costRestrictQuery, visibilityQuery, categoryQuery, startTimeQuery, endTimeQuery, or)
+	//and := elastic.NewBoolQuery().Must(addressQuery, ageRestrictQuery, genderRestrictQuery, costRestrictQuery, visibilityQuery, categoryQuery, startTimeQuery, endTimeQuery, or)
 
-	resp, err := dao.esCli.Search(model.ActivityIndexName).Query(and).Do(ctx)
+	resp, err := dao.esCli.Search(model.ActivityIndexName).Query(or).Do(ctx)
 
 	if err != nil {
 		return nil, err

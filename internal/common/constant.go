@@ -50,7 +50,7 @@ func (a ActivityStatus) Uint() uint {
 const (
 	ActivityStatusPendingReview ActivityStatus = iota + 1 //待审核
 	ActivityStatusReviewPass                              //审核失败
-	ActivityStatusSignUp                                  //报名中
+	ActivityStatusSignUp                                  //报名中 == 审核通过
 	ActivityStatusCancel                                  //已取消
 	ActivityStatusStart                                   //已开始
 	ActivityStatusEnd                                     //已结束

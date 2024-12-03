@@ -35,14 +35,33 @@ func (b *Builder) WithLike(key, val string) *Builder {
 }
 
 func (b *Builder) WithEqual(key string, val any) *Builder {
-	// 获取 val 的反射值
-	valValue := reflect.ValueOf(val)
-
-	// 如果 val 是 nil 或者是类型的零值，则不添加 Where 条件
-	if val == nil || valValue.Kind() == reflect.Ptr && valValue.IsNil() || valValue.IsZero() {
+	if b.IsNull(val) {
 		return b
 	}
 
-	b.DB = b.DB.Where("? = ?", key, val)
+	b.DB = b.DB.Where(key+" = ?", val)
 	return b
+}
+
+func (b *Builder) WithLte(key string, val any) *Builder {
+	if b.IsNull(val) {
+		return b
+	}
+	b.DB = b.DB.Where(key+" <= ?", val)
+	return b
+}
+
+func (b *Builder) WithGte(key string, val any) *Builder {
+	if b.IsNull(val) {
+		return b
+	}
+	b.DB = b.DB.Where(key+" >= ?", val)
+	return b
+}
+
+func (b *Builder) IsNull(val any) bool {
+	// 获取 val 的反射值
+	valValue := reflect.ValueOf(val)
+	// 如果 val 是 nil 或者是类型的零值，则不添加 Where 条件
+	return val == nil || valValue.Kind() == reflect.Ptr && valValue.IsNil() || valValue.IsZero()
 }

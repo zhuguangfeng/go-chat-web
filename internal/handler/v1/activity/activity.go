@@ -2,6 +2,7 @@ package activity
 
 import (
 	"github.com/gin-gonic/gin"
+	dtoV1 "github.com/zhuguangfeng/go-chat/dto/v1"
 	"github.com/zhuguangfeng/go-chat/internal/common"
 	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"github.com/zhuguangfeng/go-chat/internal/handler/v1/jwt"
@@ -32,7 +33,7 @@ func (hdl *ActivityHandler) RegisterRouter(router *gin.Engine) {
 		activityG.POST("/cancel", ginx.WrapBodyAndClaims[BaseReq, jwt.UserClaims](hdl.CancelActivity))
 		activityG.POST("/change", ginx.WrapBodyAndClaims[ChangeActivityReq, jwt.UserClaims](hdl.ChangeActivity))
 		activityG.GET("/detail", hdl.ActivityDetail)
-		activityG.POST("/list", hdl.ActivityList)
+		activityG.POST("/list", ginx.WrapBody[dtoV1.SearchActivityReq](hdl.ActivityList))
 	}
 }
 

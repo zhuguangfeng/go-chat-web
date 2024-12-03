@@ -17,4 +17,6 @@ type Activity struct {
 	StartTime           uint     `json:"startTime" dc:"活动开始时间"`
 	DeadlineTime        uint     `json:"deadlineTime" dc:"活动截止时间"`
 	Status              uint     `json:"status" dc:"活动状态"`
+	CreatedTime         uint     `json:"createdTime" dc:"创建时间"`
+	UpdatedTime         uint     `json:"updatedTime" dc:"修改时间"`
 }

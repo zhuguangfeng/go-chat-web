@@ -44,13 +44,14 @@ func (dao *GormReviewDao) ListReview(ctx context.Context, pageNum, pageSize int,
 	var res = make([]model.Review, 0)
 	err := mysqlx.NewDaoBuilder(dao.db.WithContext(ctx)).
 		WithEqual("biz", biz).
-		WithEqual("status", status).DB.Find(&res).Error
+		WithEqual("status", status).
+		WithPagination(pageNum, pageSize).DB.Find(&res).Error
 	return res, err
 }
 
 func (dao *GormReviewDao) FindReviewCount(ctx context.Context, biz string, status uint) (int64, error) {
 	var count int64
-	err := mysqlx.NewDaoBuilder(dao.db.WithContext(ctx)).
+	err := mysqlx.NewDaoBuilder(dao.db.WithContext(ctx).Model(&model.Review{})).
 		WithEqual("biz", biz).
 		WithEqual("status", status).DB.Count(&count).Error
 	return count, err

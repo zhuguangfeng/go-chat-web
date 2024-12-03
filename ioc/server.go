@@ -14,7 +14,8 @@ import (
 	"time"
 )
 
-func InitWebServer(mdls []gin.HandlerFunc, userHandler *user.UserHandler,
+func InitWebServer(mdls []gin.HandlerFunc,
+	userHandler *user.UserHandler,
 	dynamicHandler *dynamic.DynamicHandler,
 	activityHandler *activity.ActivityHandler,
 	reviewHandler *review.ReviewHandler,

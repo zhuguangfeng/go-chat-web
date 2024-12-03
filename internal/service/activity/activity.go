@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/google/uuid"
+	dtoV1 "github.com/zhuguangfeng/go-chat/dto/v1"
 	"github.com/zhuguangfeng/go-chat/internal/common"
 	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"github.com/zhuguangfeng/go-chat/internal/repository"
@@ -15,7 +16,7 @@ type ActivityService interface {
 	ChangeActivity(ctx context.Context, activity domain.Activity) error
 	CancelActivity(ctx context.Context, activityID int64) error
 	ActivityDetail(ctx context.Context, id int64) (domain.Activity, error)
-	ActivityList(ctx context.Context, pageNum, pageSize int, searchKey string) ([]domain.Activity, int64, error)
+	ActivityList(ctx context.Context, req dtoV1.SearchActivityReq) ([]domain.Activity, int64, error)
 }
 
 type activityService struct {
@@ -84,9 +85,9 @@ func (svc *activityService) ActivityDetail(ctx context.Context, id int64) (domai
 }
 
 // ActivityList 活动列表
-func (svc *activityService) ActivityList(ctx context.Context, pageNum, pageSize int, searchKey string) ([]domain.Activity, int64, error) {
+func (svc *activityService) ActivityList(ctx context.Context, req dtoV1.SearchActivityReq) ([]domain.Activity, int64, error) {
 
-	activitys, count, err := svc.activityRepo.ListActivity(ctx, pageNum, pageSize, searchKey)
+	activitys, count, err := svc.activityRepo.ListActivity(ctx, req)
 	if err != nil {
 		return nil, 0, err
 	}

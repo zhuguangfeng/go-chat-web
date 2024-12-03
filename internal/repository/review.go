@@ -8,6 +8,7 @@ import (
 	"github.com/zhuguangfeng/go-chat/model"
 	"github.com/zhuguangfeng/go-chat/pkg/ekit/slice"
 	"github.com/zhuguangfeng/go-chat/pkg/errorx"
+	"github.com/zhuguangfeng/go-chat/pkg/logger"
 )
 
 type ReviewRepository interface {
@@ -17,11 +18,13 @@ type ReviewRepository interface {
 }
 
 type reviewRepository struct {
+	logger    logger.Logger
 	reviewDao dao.ReviewDao
 }
 
-func NewReviewRepository(reviewDao dao.ReviewDao) ReviewRepository {
+func NewReviewRepository(logger logger.Logger, reviewDao dao.ReviewDao) ReviewRepository {
 	return &reviewRepository{
+		logger:    logger,
 		reviewDao: reviewDao,
 	}
 }
@@ -45,10 +48,9 @@ func (repo *reviewRepository) DetailReview(ctx context.Context, uuid string) (do
 func (repo *reviewRepository) ListReview(ctx context.Context, pageNum, pageSize int, biz string, status uint) ([]domain.Review, int64, error) {
 	reviews, err := repo.reviewDao.ListReview(ctx, pageNum, pageSize, biz, status)
 	if err == nil {
-
 		count, err := repo.reviewDao.FindReviewCount(ctx, biz, status)
 		if err != nil {
-			//TODO
+			repo.logger.Error("[ReviewRepository.ListReview] 获取review总条数失败", logger.Error(err))
 		}
 
 		return slice.Map(reviews, func(idx int, review model.Review) domain.Review {
@@ -56,7 +58,7 @@ func (repo *reviewRepository) ListReview(ctx context.Context, pageNum, pageSize 
 		}), count, nil
 	}
 
-	return nil, 0, err
+	return nil, 0, errorx.NewBizError(common.SystemInternalError).WithError(err)
 }
 
 func (repo *reviewRepository) toEntity(review domain.Review) model.Review {

@@ -5,6 +5,7 @@ package main
 import (
 	"github.com/google/wire"
 	"github.com/zhuguangfeng/go-chat/cmd/server/app"
+	activityEvent "github.com/zhuguangfeng/go-chat/internal/event/activity"
 	"github.com/zhuguangfeng/go-chat/internal/handler/v1/activity"
 	"github.com/zhuguangfeng/go-chat/internal/handler/v1/dynamic"
 	iJwt "github.com/zhuguangfeng/go-chat/internal/handler/v1/jwt"
@@ -28,6 +29,13 @@ func InitWebServer() *app.App {
 		ioc.InitWebServer,
 		ioc.InitGinMiddleware,
 		ioc.InitEsClient,
+		ioc.InitKafka,
+		ioc.NewConsumers,
+		ioc.InitSaramaSyncProducer,
+
+		activityEvent.NewActivityConsumer,
+		activityEvent.NewProducer,
+
 
 		cache.NewUserCache,
 
@@ -35,6 +43,7 @@ func InitWebServer() *app.App {
 		dao.NewDynamicDao,
 		dao.NewReviewDao,
 		dao.NewActivityDao,
+		dao.NewActivityEsDao,
 
 		repository.NewUserRepository,
 		repository.NewDynamicRepository,

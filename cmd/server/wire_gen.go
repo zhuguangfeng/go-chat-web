@@ -8,6 +8,7 @@ package main
 
 import (
 	"github.com/zhuguangfeng/go-chat/cmd/server/app"
+	activity3 "github.com/zhuguangfeng/go-chat/internal/event/activity"
 	activity2 "github.com/zhuguangfeng/go-chat/internal/handler/v1/activity"
 	dynamic2 "github.com/zhuguangfeng/go-chat/internal/handler/v1/dynamic"
 	"github.com/zhuguangfeng/go-chat/internal/handler/v1/jwt"
@@ -42,15 +43,23 @@ func InitWebServer() *app.App {
 	dynamicHandler := dynamic2.NewDynamicHandler(dynamicService)
 	activityDao := dao.NewActivityDao(db)
 	reviewDao := dao.NewReviewDao(db)
-	activityRepository := repository.NewActivityRepository(logger, activityDao, reviewDao)
+	client := ioc.InitEsClient()
+	activityEsDao := dao.NewActivityEsDao(client)
+	activityRepository := repository.NewActivityRepository(logger, activityDao, reviewDao, activityEsDao)
 	activityService := activity.NewActivityService(activityRepository, userRepository)
 	activityHandler := activity2.NewActivityHandler(logger, activityService, userService)
-	reviewRepository := repository.NewReviewRepository(reviewDao)
-	reviewService := review.NewReviewService(reviewRepository, activityRepository)
+	reviewRepository := repository.NewReviewRepository(logger, reviewDao)
+	saramaClient := ioc.InitKafka()
+	syncProducer := ioc.InitSaramaSyncProducer(saramaClient)
+	producer := activity3.NewProducer(syncProducer)
+	reviewService := review.NewReviewService(logger, reviewRepository, activityRepository, producer)
 	reviewHandler := review2.NewReviewHandler(reviewService)
 	engine := ioc.InitWebServer(v, userHandler, dynamicHandler, activityHandler, reviewHandler)
+	activityConsumer := activity3.NewActivityConsumer(saramaClient, logger, activityRepository)
+	v2 := ioc.NewConsumers(activityConsumer)
 	appApp := &app.App{
-		Server: engine,
+		Server:    engine,
+		Consumers: v2,
 	}
 	return appApp
 }

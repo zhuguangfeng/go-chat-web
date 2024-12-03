@@ -2,11 +2,8 @@ package user
 
 import (
 	"context"
-	"github.com/zhuguangfeng/go-chat/internal/common"
 	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"github.com/zhuguangfeng/go-chat/internal/repository"
-	"github.com/zhuguangfeng/go-chat/pkg/errorx"
-	"github.com/zhuguangfeng/go-chat/pkg/utils"
 )
 
 type UserService interface {
@@ -28,10 +25,7 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 func (svc *userService) UserLoginPwd(ctx context.Context, phone, password string) (domain.User, error) {
 	user, err := svc.userRepo.GetUserByPhone(ctx, phone)
 	if err != nil {
-		if utils.IsRecordNotFoundError(err) {
-			return domain.User{}, errorx.NewBizError(common.UserNotFound).WithError(err)
-		}
-		return domain.User{}, errorx.NewBizError(common.SystemInternalError).WithError(err)
+		return domain.User{}, err
 	}
 
 	//密码校验

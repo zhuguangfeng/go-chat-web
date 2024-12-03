@@ -9,6 +9,13 @@ func main() {
 	initViperWatch()
 	app := InitWebServer()
 
+	for _, consumer := range app.Consumers {
+		err := consumer.Start()
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	err := app.Server.Run(":8888")
 	if err != nil {
 		panic(err)

@@ -38,7 +38,6 @@ func (repo *CacheUserRepository) GetUserByPhone(ctx context.Context, phone strin
 		}
 		return domain.User{}, errorx.NewBizError(common.SystemInternalError).WithError(err)
 	}
-
 	return repo.toDomainUser(user), nil
 }
 
