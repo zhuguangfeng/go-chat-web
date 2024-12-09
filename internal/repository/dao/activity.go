@@ -2,10 +2,16 @@ package dao
 
 import (
 	"context"
+	"errors"
 	dtoV1 "github.com/zhuguangfeng/go-chat/dto/v1"
 	"github.com/zhuguangfeng/go-chat/model"
 	"github.com/zhuguangfeng/go-chat/pkg/mysqlx"
+	"github.com/zhuguangfeng/go-chat/pkg/utils"
 	"gorm.io/gorm"
+)
+
+var (
+	ErrActivityNotFound = errors.New("activity not found")
 )
 
 type ActivityDao interface {
@@ -27,7 +33,7 @@ func NewActivityDao(db *gorm.DB) ActivityDao {
 	}
 }
 
-// InsertActivity 插入活动
+// InsertActivity 插入活动并插入审核
 func (dao *GormActivityDao) InsertActivity(ctx context.Context, activity model.Activity, review model.Review) error {
 	return dao.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		err := tx.Create(&activity).Error
@@ -39,7 +45,7 @@ func (dao *GormActivityDao) InsertActivity(ctx context.Context, activity model.A
 	})
 }
 
-// UpdateActivity 修改活动
+// UpdateActivity 修改活动并修改审核信息
 func (dao *GormActivityDao) UpdateActivity(ctx context.Context, activity model.Activity, review model.Review) error {
 	return dao.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		err := tx.Where("id = ?", activity.ID).Updates(&activity).Error
@@ -59,13 +65,15 @@ func (dao *GormActivityDao) DeleteActivity(ctx context.Context, id int64) error 
 func (dao *GormActivityDao) DetailActivity(ctx context.Context, id int64) (model.Activity, error) {
 	var res model.Activity
 	err := dao.db.WithContext(ctx).Where("id = ?", id).First(&res).Error
+	if utils.IsRecordNotFoundError(err) {
+		return model.Activity{}, ErrActivityNotFound
+	}
 	return res, err
 }
 
 // ListActivity 活动列表
 func (dao *GormActivityDao) ListActivity(ctx context.Context, req dtoV1.SearchActivityReq) ([]model.Activity, error) {
 	var res = make([]model.Activity, 0)
-
 	err := mysqlx.NewDaoBuilder(dao.db.WithContext(ctx)).
 		WithLike("title", req.SearchKey).
 		WithLike("desc", req.SearchKey).

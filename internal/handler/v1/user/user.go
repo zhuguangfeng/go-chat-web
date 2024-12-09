@@ -32,30 +32,15 @@ func (hdl *UserHandler) RegisterRouter(router *gin.Engine) {
 	}
 }
 
-type User struct {
-	ID            int64     `json:"id"`
-	Username      string    `json:"username"`
-	Phone         string    `json:"phone"`
-	Age           int64     `json:"age"`
-	Gender        uint      `json:"gender"`
-	IsRealName    bool      `json:"isRealName"`
-	LoginIp       string    `json:"loginIp"`
-	LastLoginTime time.Time `json:"lastTime"`
-	Status        uint      `json:"status"`
-	CreatedTime   time.Time `json:"createdTime"`
-	UpdatedTime   time.Time `json:"updatedTime"`
-}
-
-func (hdl *UserHandler) toUser(user domain.User) User {
-	return User{
-		ID: user.ID,
-
+func (hdl *UserHandler) toUser(user domain.User) dtoV1.User {
+	return dtoV1.User{
+		ID:            user.ID,
 		Username:      user.UserName,
 		Phone:         user.Phone,
 		Age:           user.Age,
 		Gender:        user.Gender,
 		IsRealName:    user.IsRealName,
-		LoginIp:       user.LoginIp,
+		LoginIp:       user.LastLoginIp,
 		LastLoginTime: time.Unix(int64(user.LastLoginTime), 0),
 		Status:        user.Status,
 		CreatedTime:   time.Unix(int64(user.CreatedTime), 0),

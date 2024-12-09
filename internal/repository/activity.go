@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	dtoV1 "github.com/zhuguangfeng/go-chat/dto/v1"
 	"github.com/zhuguangfeng/go-chat/internal/common"
 	"github.com/zhuguangfeng/go-chat/internal/domain"
@@ -10,7 +11,6 @@ import (
 	"github.com/zhuguangfeng/go-chat/pkg/ekit/slice"
 	"github.com/zhuguangfeng/go-chat/pkg/errorx"
 	"github.com/zhuguangfeng/go-chat/pkg/logger"
-	"github.com/zhuguangfeng/go-chat/pkg/utils"
 )
 
 type ActivityRepository interface {
@@ -65,7 +65,7 @@ func (repo *activityRepository) DeleteActivity(ctx context.Context, id int64) er
 func (repo *activityRepository) DetailActivity(ctx context.Context, id int64) (domain.Activity, error) {
 	activity, err := repo.activityDao.DetailActivity(ctx, id)
 	if err != nil {
-		if utils.IsRecordNotFoundError(err) {
+		if errors.Is(err, dao.ErrActivityNotFound) {
 			return domain.Activity{}, errorx.NewBizError(common.ActivityNotFound).WithError(err)
 		}
 		return domain.Activity{}, errorx.NewBizError(common.SystemInternalError).WithError(err)
@@ -111,6 +111,7 @@ func (repo *activityRepository) toActivityEntity(activity domain.Activity) model
 			ID: activity.ID,
 		},
 		SponsorID:           activity.Sponsor.ID,
+		GroupID:             activity.Group.ID,
 		Title:               activity.Title,
 		Desc:                activity.Desc,
 		Media:               activity.Media,
@@ -147,6 +148,9 @@ func (repo *activityRepository) toActivityDomain(activity model.Activity) domain
 		ID: activity.ID,
 		Sponsor: domain.User{
 			ID: activity.SponsorID,
+		},
+		Group: domain.Group{
+			ID: activity.GroupID,
 		},
 		Title:               activity.Title,
 		Desc:                activity.Desc,

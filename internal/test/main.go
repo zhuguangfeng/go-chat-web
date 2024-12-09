@@ -1,17 +1,35 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"reflect"
+	"github.com/zhuguangfeng/go-chat/internal/common"
+	"github.com/zhuguangfeng/go-chat/pkg/errorx"
 )
 
-func main() {
-	var a uint = 1
-	fmt.Println(aa(a))
+type A struct {
+	Name string
+	Age  int
 }
 
-func aa(val any) bool {
-	// 获取 val 的反射值
-	valValue := reflect.ValueOf(val)
-	return val == nil || valValue.Kind() == reflect.Ptr && valValue.IsNil() || valValue.IsZero()
+type B struct {
+	Name string
+	Age  int
+}
+
+func main() {
+	err1 := errorx.NewBizError(common.SystemInternalError).WithError(errors.New("err1"))
+	err2 := errorx.NewBizError(common.SystemInternalError)
+
+	fmt.Println(err1)
+	fmt.Println(err2)
+	fmt.Println(err1.Error())
+	fmt.Println(err2.Error())
+	fmt.Println(err1 == nil)
+	fmt.Println(err2 == nil)
+
+}
+
+func demo(b []*B) {
+
 }

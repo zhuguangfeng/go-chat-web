@@ -12,3 +12,7 @@ type SearchActivityReq struct {
 	EndTime        uint   `json:"EndTime"`
 	Status         uint   `json:"status"`
 }
+
+type SignUpActivityReq struct {
+	ActivityID int64 `json:"activityId" dc:"活动id"`
+}

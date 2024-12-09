@@ -5,12 +5,12 @@ type User struct {
 	UserName      string `json:"username"`
 	Password      string `json:"password"`
 	Phone         string `json:"phone"`
-	Age           int64  `json:"age"`
+	Age           uint   `json:"age"`
 	Gender        uint   `json:"gender"`
 	IsRealName    bool   `json:"isRealName"`
 	Name          string `json:"name"`
 	IDCard        string `json:"idCard"`
-	LoginIp       string `json:"loginIp"`
+	LastLoginIp   string `json:"loginIp"`
 	LastLoginTime uint   `json:"lastTime"`
 	Status        uint   `json:"status"`
 	CreatedTime   uint   `json:"createdTime"`

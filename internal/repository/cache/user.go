@@ -5,8 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/redis/go-redis/v9"
+
 	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"time"
+)
+
+var (
+	ErrKeyNotFound = redis.Nil
 )
 
 type UserCache interface {
@@ -31,7 +36,6 @@ func NewUserCache(redisCli redis.Cmdable) UserCache {
 // SetUser 缓存用户信息
 func (cache *RedisUserCache) SetUser(ctx context.Context, user domain.User) error {
 	key := fmt.Sprintf("%s%d:", cache.keyPrefix, user.ID)
-
 	val, err := json.Marshal(user)
 	if err != nil {
 		return err

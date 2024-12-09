@@ -29,7 +29,7 @@ func (hdl *ActivityHandler) CreateActivity(ctx *gin.Context, req CreateActivityR
 		Status:          common.ActivityStatusPendingReview.Uint(),
 	})
 	if err != nil {
-		hdl.logger.Error("[activity.hdl.create]创建活动失败", logger.Error(err))
+		hdl.logger.Error("[ActivityHdl.CreateActivity]创建活动失败", logger.Error(err))
 		common.InternalError(ctx, err)
 		return
 	}

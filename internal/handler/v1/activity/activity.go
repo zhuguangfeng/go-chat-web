@@ -7,6 +7,7 @@ import (
 	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"github.com/zhuguangfeng/go-chat/internal/handler/v1/jwt"
 	"github.com/zhuguangfeng/go-chat/internal/service/activity"
+	"github.com/zhuguangfeng/go-chat/internal/service/review"
 	"github.com/zhuguangfeng/go-chat/internal/service/user"
 	"github.com/zhuguangfeng/go-chat/pkg/ginx"
 	"github.com/zhuguangfeng/go-chat/pkg/logger"
@@ -16,9 +17,10 @@ type ActivityHandler struct {
 	logger      logger.Logger
 	activitySvc activity.ActivityService
 	userSvc     user.UserService
+	reviewSvc   review.ReviewService
 }
 
-func NewActivityHandler(logger logger.Logger, activitySvc activity.ActivityService, userSvc user.UserService) *ActivityHandler {
+func NewActivityHandler(logger logger.Logger, activitySvc activity.ActivityService, userSvc user.UserService, reviewSvc review.ReviewService) *ActivityHandler {
 	return &ActivityHandler{
 		logger:      logger,
 		activitySvc: activitySvc,

@@ -9,6 +9,7 @@ import (
 	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"github.com/zhuguangfeng/go-chat/internal/repository"
 	"github.com/zhuguangfeng/go-chat/pkg/errorx"
+	"github.com/zhuguangfeng/go-chat/pkg/logger"
 )
 
 type ActivityService interface {
@@ -17,17 +18,22 @@ type ActivityService interface {
 	CancelActivity(ctx context.Context, activityID int64) error
 	ActivityDetail(ctx context.Context, id int64) (domain.Activity, error)
 	ActivityList(ctx context.Context, req dtoV1.SearchActivityReq) ([]domain.Activity, int64, error)
+	SignUpActivity(ctx context.Context, activityID, uid int64) error
 }
 
 type activityService struct {
+	logger       logger.Logger
 	activityRepo repository.ActivityRepository
 	userRepo     repository.UserRepository
+	reviewRepo   repository.ReviewRepository
 }
 
-func NewActivityService(activityRepo repository.ActivityRepository, userRepo repository.UserRepository) ActivityService {
+func NewActivityService(logger logger.Logger, activityRepo repository.ActivityRepository, userRepo repository.UserRepository, reviewRepo repository.ReviewRepository) ActivityService {
 	return &activityService{
+		logger:       logger,
 		activityRepo: activityRepo,
 		userRepo:     userRepo,
+		reviewRepo:   reviewRepo,
 	}
 
 }
@@ -49,7 +55,7 @@ func (svc *activityService) ChangeActivity(ctx context.Context, activity domain.
 	}
 
 	if activity.Status != common.ActivityStatusPendingReview.Uint() {
-		return errors.New("已经审核通过的活动不能修改")
+		return errorx.NewBizError(common.ActivityNotChange).WithError(errors.New("已经审核通过的活动不能修改"))
 	}
 
 	return svc.activityRepo.UpdateActivity(ctx, activity, domain.Review{
@@ -110,4 +116,10 @@ func (svc *activityService) ActivityList(ctx context.Context, req dtoV1.SearchAc
 	}
 
 	return activitys, count, nil
+}
+
+// SignUpActivity 活动报名
+func (svc *activityService) SignUpActivity(ctx context.Context, activityID, uid int64) error {
+
+	return nil
 }

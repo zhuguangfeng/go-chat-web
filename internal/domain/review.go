@@ -6,9 +6,10 @@ type Review struct {
 	Biz        string   `json:"biz"`
 	BizID      int64    `json:"bizId"`
 	Status     uint     `json:"status"`
+	Sponsor    User     `json:"sponsor"`
 	Reviewer   User     `json:"reviewer"`
-	Opinion    string   `json:"opinion"`
 	Activity   Activity `json:"activity"`
+	Opinion    string   `json:"opinion"`
 	ReviewTime uint     `json:"reviewTime"`
 	CreateTime uint     `json:"createTime"`
 	UpdateTime uint     `json:"updateTime"`

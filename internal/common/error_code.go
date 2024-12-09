@@ -15,7 +15,9 @@ const (
 	InvalidParam        errorx.ErrorCode = "GoChat.System.InvalidParam:请求参数有误"
 
 	UserInvalidPassword errorx.ErrorCode = "GoChat.User.InvalidPassword:密码错误"
-	UserNotFound        errorx.ErrorCode = "GoChat.User.UserNotFound:账号不存在"
+	UserPhoneNotFound   errorx.ErrorCode = "GoChat.User.UserPhoneNotFound:该手机号码不存在"
+	UserNotFound        errorx.ErrorCode = "GoChat.User.UserNotFound:用户不存在"
+	UserIsExists        errorx.ErrorCode = "GoChat.User.UserIsExists:用户已存在"
 
 	ActivityNotFound  errorx.ErrorCode = "GoChat.Activity.ActivityNotFound:活动不存在"
 	ActivityNotChange errorx.ErrorCode = "GoChat.Activity.NotChange:该活动暂时不能修改"

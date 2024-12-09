@@ -32,6 +32,7 @@ func NewReviewService(logger logger.Logger, reviewRepo repository.ReviewReposito
 	}
 }
 
+// ImplementReview 审核
 func (svc *reviewService) ImplementReview(ctx context.Context, review domain.Review) error {
 	rvw, err := svc.reviewRepo.DetailReview(ctx, review.UUID)
 	if err != nil {
@@ -42,22 +43,30 @@ func (svc *reviewService) ImplementReview(ctx context.Context, review domain.Rev
 		return errorx.NewBizError(common.ReviewNotReview)
 	}
 
-	err = svc.reviewRepo.ChangeReview(ctx, review)
+	activity, err := svc.activityRepo.DetailActivity(ctx, rvw.BizID)
 	if err != nil {
-		return err
+		svc.logger.Error("[ReviewService.ImplementReview]获取活动详情失败")
+		return nil
 	}
 
 	switch rvw.Biz {
-	case "activity":
-		activity, err := svc.activityRepo.DetailActivity(ctx, rvw.BizID)
-		if err != nil {
-			svc.logger.Error("[Review.Service.ImplementReview]获取活动详情失败")
-			return nil
+	case common.ReviewBizActivity:
+		var group domain.Group
+		if review.Status == common.ReviewStatusSuccess.Uint() {
+			group.GroupName = "活动交流群"
+			group.Owner = domain.User{
+				ID: review.Sponsor.ID,
+			}
 		}
+		err = svc.reviewRepo.ReviewActivity(ctx, review, group)
+		if err != nil {
+			return err
+		}
+
 		if review.Status == common.ActivityStatusSignUp.Uint() {
 			err := svc.activityEvent.ProducerSyncActivityEvent(ctx, activityEvent.ToEvent(activity))
 			if err != nil {
-				svc.logger.Error("[review.service.implementReview]发送同步es消息失败",
+				svc.logger.Error("[ReviewService.ImplementReview]发送同步es消息失败",
 					logger.Int64("activityID", activity.ID),
 					logger.Error(err))
 				return errorx.NewBizError(common.SystemInternalError).WithError(err)

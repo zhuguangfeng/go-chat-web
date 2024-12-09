@@ -68,3 +68,8 @@ const (
 	ReviewStatusSuccess                               //审核通过
 	ReviewStatusPass                                  //审核拒绝
 )
+
+const (
+	ReviewBizActivity       = "activity"
+	ReviewBizSignUpActivity = "activity_sign_up"
+)

@@ -4,6 +4,9 @@
       "id": {
         "type": "long"
       },
+      "groupId": {
+        "type": "long"
+      },
       "sponsorId": {
         "type": "long"
       },

@@ -3,6 +3,7 @@ package domain
 type Activity struct {
 	ID                  int64    `json:"id" dc:"主键ID"`
 	Sponsor             User     `json:"user" dc:"活动发起人"`
+	Group               Group    `json:"group" dc:"群聊"`
 	Title               string   `json:"title" dc:"活动标题"`
 	Desc                string   `json:"desc" dc:"活动描述"`
 	Media               []string `json:"media" dc:"资源 视频或图片"`

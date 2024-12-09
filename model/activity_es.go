@@ -14,6 +14,7 @@ var (
 type ActivityEs struct {
 	ID                  int64    `json:"id"`
 	SponsorID           int64    `json:"sponsorId"`
+	GroupID             int64    `json:"groupId"`
 	Title               string   `json:"title"`
 	Desc                string   `json:"desc"`
 	Media               []string `json:"media"`
