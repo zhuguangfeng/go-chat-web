@@ -16,3 +16,13 @@ type SearchActivityReq struct {
 type SignUpActivityReq struct {
 	ActivityID int64 `json:"activityId" dc:"活动id"`
 }
+
+type CancelSignUpActivityReq struct {
+	ActivityID int64 `json:"activityId" dc:"活动id"`
+}
+
+type ReviewActivityReq struct {
+	SignupID   int64 `json:"signupId" dc:"报名id"`
+	ActivityID int64 `json:"activityId" dc:"活动id"`
+	Status     uint  `json:"status" dc:"状态"`
+}

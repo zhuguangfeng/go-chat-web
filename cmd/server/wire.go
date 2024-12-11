@@ -36,7 +36,6 @@ func InitWebServer() *app.App {
 		activityEvent.NewActivityConsumer,
 		activityEvent.NewProducer,
 
-
 		cache.NewUserCache,
 
 		dao.NewUserDao,
@@ -44,11 +43,13 @@ func InitWebServer() *app.App {
 		dao.NewReviewDao,
 		dao.NewActivityDao,
 		dao.NewActivityEsDao,
+		dao.NewActivitySignUp,
 
 		repository.NewUserRepository,
 		repository.NewDynamicRepository,
 		repository.NewReviewRepository,
 		repository.NewActivityRepository,
+		repository.NewActivitySignupRepository,
 
 		userSvc.NewUserService,
 		dynamicSvc.NewDynamicService,

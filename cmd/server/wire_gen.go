@@ -8,8 +8,8 @@ package main
 
 import (
 	"github.com/zhuguangfeng/go-chat/cmd/server/app"
-	activity3 "github.com/zhuguangfeng/go-chat/internal/event/activity"
-	activity2 "github.com/zhuguangfeng/go-chat/internal/handler/v1/activity"
+	activity2 "github.com/zhuguangfeng/go-chat/internal/event/activity"
+	activity3 "github.com/zhuguangfeng/go-chat/internal/handler/v1/activity"
 	dynamic2 "github.com/zhuguangfeng/go-chat/internal/handler/v1/dynamic"
 	"github.com/zhuguangfeng/go-chat/internal/handler/v1/jwt"
 	review2 "github.com/zhuguangfeng/go-chat/internal/handler/v1/review"
@@ -34,7 +34,7 @@ func InitWebServer() *app.App {
 	db := ioc.InitMysql()
 	userDao := dao.NewUserDao(db)
 	userCache := cache.NewUserCache(cmdable)
-	userRepository := repository.NewUserRepository(userDao, userCache)
+	userRepository := repository.NewUserRepository(logger, userDao, userCache)
 	userService := user.NewUserService(userRepository)
 	userHandler := user2.NewUserController(jwtHandler, userService)
 	dynamicDao := dao.NewDynamicDao(db)
@@ -46,16 +46,18 @@ func InitWebServer() *app.App {
 	client := ioc.InitEsClient()
 	activityEsDao := dao.NewActivityEsDao(client)
 	activityRepository := repository.NewActivityRepository(logger, activityDao, reviewDao, activityEsDao)
-	activityService := activity.NewActivityService(activityRepository, userRepository)
-	activityHandler := activity2.NewActivityHandler(logger, activityService, userService)
 	reviewRepository := repository.NewReviewRepository(logger, reviewDao)
+	activitySignUpDao := dao.NewActivitySignUp(db)
+	activitySignupRepository1 := repository.NewActivitySignupRepository(activitySignUpDao)
+	activityService := activity.NewActivityService(logger, activityRepository, userRepository, reviewRepository, activitySignupRepository1)
 	saramaClient := ioc.InitKafka()
 	syncProducer := ioc.InitSaramaSyncProducer(saramaClient)
-	producer := activity3.NewProducer(syncProducer)
+	producer := activity2.NewProducer(syncProducer)
 	reviewService := review.NewReviewService(logger, reviewRepository, activityRepository, producer)
+	activityHandler := activity3.NewActivityHandler(logger, activityService, userService, reviewService)
 	reviewHandler := review2.NewReviewHandler(reviewService)
 	engine := ioc.InitWebServer(v, userHandler, dynamicHandler, activityHandler, reviewHandler)
-	activityConsumer := activity3.NewActivityConsumer(saramaClient, logger, activityRepository)
+	activityConsumer := activity2.NewActivityConsumer(saramaClient, logger, activityRepository)
 	v2 := ioc.NewConsumers(activityConsumer)
 	appApp := &app.App{
 		Server:    engine,

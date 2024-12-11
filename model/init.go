@@ -1,6 +1,8 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 func InitTables(db *gorm.DB) error {
 	return db.AutoMigrate(
@@ -8,5 +10,8 @@ func InitTables(db *gorm.DB) error {
 		//&Dynamic{},
 		&Activity{},
 		&Review{},
+		&ActivitySignup{},
+		&Group{},
+		&GroupUserMap{},
 	)
 }

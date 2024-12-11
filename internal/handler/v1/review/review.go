@@ -22,7 +22,7 @@ func NewReviewHandler(reviewSvc review.ReviewService) *ReviewHandler {
 func (hdl *ReviewHandler) RegisterRouter(router *gin.Engine) {
 	reviewG := router.Group(common.GoChatServicePath + "/review")
 	{
-		reviewG.POST("/implement", ginx.WrapBodyAndClaims[ImplementReviewReq, iJwt.UserClaims](hdl.ImplementReview))
+		reviewG.POST("/create-activity", ginx.WrapBodyAndClaims[ImplementReviewReq, iJwt.UserClaims](hdl.ReviewCreateActivity))
 		reviewG.GET("/detail", hdl.ReviewDetail)
 		reviewG.GET("/list", hdl.ReviewList)
 

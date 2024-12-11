@@ -58,6 +58,10 @@ func (b *Builder) WithGte(key string, val any) *Builder {
 	b.DB = b.DB.Where(key+" >= ?", val)
 	return b
 }
+func (b *Builder) WithFind(res any) *Builder {
+	b.DB = b.DB.Find(&res)
+	return b
+}
 
 func (b *Builder) IsNull(val any) bool {
 	// 获取 val 的反射值

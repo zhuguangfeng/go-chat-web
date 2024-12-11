@@ -11,7 +11,7 @@ import (
 )
 
 type ReviewService interface {
-	ImplementReview(ctx context.Context, review domain.Review) error
+	ReviewCreateActivity(ctx context.Context, review domain.Review) error
 	ReviewDetail(ctx context.Context, uuid string) (domain.Review, error)
 	ReviewList(ctx context.Context, pageNum, pageSize int, biz string, status uint) ([]domain.Review, int64, error)
 }
@@ -33,7 +33,8 @@ func NewReviewService(logger logger.Logger, reviewRepo repository.ReviewReposito
 }
 
 // ImplementReview 审核
-func (svc *reviewService) ImplementReview(ctx context.Context, review domain.Review) error {
+func (svc *reviewService) ReviewCreateActivity(ctx context.Context, review domain.Review) error {
+	//验证是否审核过 可以前端来审核
 	rvw, err := svc.reviewRepo.DetailReview(ctx, review.UUID)
 	if err != nil {
 		return err
@@ -43,37 +44,45 @@ func (svc *reviewService) ImplementReview(ctx context.Context, review domain.Rev
 		return errorx.NewBizError(common.ReviewNotReview)
 	}
 
+	//获取activity
 	activity, err := svc.activityRepo.DetailActivity(ctx, rvw.BizID)
 	if err != nil {
-		svc.logger.Error("[ReviewService.ImplementReview]获取活动详情失败")
+		svc.logger.Error("[ReviewService.ImplementReview]获取活动详情失败 并且未将活动数据写入到es")
 		return nil
 	}
 
-	switch rvw.Biz {
-	case common.ReviewBizActivity:
-		var group domain.Group
-		if review.Status == common.ReviewStatusSuccess.Uint() {
-			group.GroupName = "活动交流群"
-			group.Owner = domain.User{
-				ID: review.Sponsor.ID,
-			}
-		}
-		err = svc.reviewRepo.ReviewActivity(ctx, review, group)
-		if err != nil {
-			return err
-		}
-
-		if review.Status == common.ActivityStatusSignUp.Uint() {
-			err := svc.activityEvent.ProducerSyncActivityEvent(ctx, activityEvent.ToEvent(activity))
-			if err != nil {
-				svc.logger.Error("[ReviewService.ImplementReview]发送同步es消息失败",
-					logger.Int64("activityID", activity.ID),
-					logger.Error(err))
-				return errorx.NewBizError(common.SystemInternalError).WithError(err)
-			}
-		}
-
+	err = svc.reviewRepo.ReviewActivity(ctx, review, domain.Group{
+		GroupName: activity.Title + "_活动群",
+		Owner: domain.User{
+			ID: activity.Sponsor.ID,
+		},
+		MaxPeopleNumber: activity.MaxPeopleNumber,
+		PeopleNumber:    0,
+		Status:          common.GroupStatusNormal.Uint(),
+	})
+	if err != nil {
+		return err
 	}
+
+	//如果审核通过 发送写入到es事件
+	if review.Status == common.ReviewStatusSuccess.Uint() {
+		go func() {
+			activity, err := svc.activityRepo.DetailActivity(ctx, rvw.BizID)
+			if err != nil {
+				svc.logger.Error("[ReviewService.ImplementReview]获取活动详情失败 并且未将活动数据写入到es")
+				return
+			}
+			if review.Status == common.ActivityStatusSignUp.Uint() {
+				err := svc.activityEvent.ProducerSyncActivityEvent(ctx, activityEvent.ToEvent(activity))
+				if err != nil {
+					svc.logger.Error("[ReviewService.ImplementReview]发送同步es消息失败",
+						logger.Int64("activityID", activity.ID),
+						logger.Error(err))
+				}
+			}
+		}()
+	}
+
 	return nil
 }
 
@@ -84,7 +93,7 @@ func (svc *reviewService) ReviewDetail(ctx context.Context, uuid string) (domain
 	}
 
 	switch review.Biz {
-	case "activity":
+	case common.ReviewBizActivity:
 		activity, err := svc.activityRepo.DetailActivity(ctx, review.ID)
 		if err != nil {
 			return domain.Review{}, err

@@ -21,3 +21,11 @@ type Activity struct {
 	CreatedTime         uint     `json:"createdTime" dc:"创建时间"`
 	UpdatedTime         uint     `json:"updatedTime" dc:"修改时间"`
 }
+
+type ActivitySignup struct {
+	ID         int64    `json:"id"`
+	Activity   Activity `json:"activity"`
+	Applicant  User     `json:"applicant"`
+	ReviewTime uint     `json:"reviewTime"`
+	Status     uint     `json:"status"`
+}

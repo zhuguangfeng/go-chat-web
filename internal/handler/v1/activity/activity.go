@@ -34,8 +34,9 @@ func (hdl *ActivityHandler) RegisterRouter(router *gin.Engine) {
 		activityG.POST("/create", ginx.WrapBodyAndClaims[CreateActivityReq, jwt.UserClaims](hdl.CreateActivity))
 		activityG.POST("/cancel", ginx.WrapBodyAndClaims[BaseReq, jwt.UserClaims](hdl.CancelActivity))
 		activityG.POST("/change", ginx.WrapBodyAndClaims[ChangeActivityReq, jwt.UserClaims](hdl.ChangeActivity))
-		activityG.GET("/detail", hdl.ActivityDetail)
+		activityG.POST("/signup", ginx.WrapBodyAndClaims[dtoV1.SignUpActivityReq, jwt.UserClaims](hdl.SignUpActivity))
 		activityG.POST("/list", ginx.WrapBody[dtoV1.SearchActivityReq](hdl.ActivityList))
+		activityG.GET("/detail", hdl.ActivityDetail)
 	}
 }
 

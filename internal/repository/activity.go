@@ -14,7 +14,7 @@ import (
 )
 
 type ActivityRepository interface {
-	CreateActivity(ctx context.Context, activity domain.Activity, review domain.Review) error
+	CreateActivity(ctx context.Context, activity domain.Activity) error
 	UpdateActivity(ctx context.Context, activity domain.Activity, review domain.Review) error
 	DeleteActivity(ctx context.Context, id int64) error
 	DetailActivity(ctx context.Context, id int64) (domain.Activity, error)
@@ -38,8 +38,8 @@ func NewActivityRepository(logger logger.Logger, activityDao dao.ActivityDao, re
 	}
 }
 
-func (repo *activityRepository) CreateActivity(ctx context.Context, activity domain.Activity, review domain.Review) error {
-	err := repo.activityDao.InsertActivity(ctx, repo.toActivityEntity(activity), repo.toReviewEntity(review))
+func (repo *activityRepository) CreateActivity(ctx context.Context, activity domain.Activity) error {
+	err := repo.activityDao.InsertActivity(ctx, repo.toActivityEntity(activity))
 	if err != nil {
 		return errorx.NewBizError(common.SystemInternalError).WithError(err)
 	}

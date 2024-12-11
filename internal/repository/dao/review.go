@@ -57,7 +57,7 @@ func (dao *GormReviewDao) FindReviewCount(ctx context.Context, biz string, statu
 // ReviewActivity 审核活动
 func (dao *GormReviewDao) ReviewActivity(ctx context.Context, review model.Review, group model.Group) error {
 	return dao.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		err := dao.updateReview(ctx, tx, review)
+		err := dao.updateReview(tx, review)
 		if err != nil {
 			return err
 		}
@@ -69,6 +69,6 @@ func (dao *GormReviewDao) ReviewActivity(ctx context.Context, review model.Revie
 }
 
 // updateReview 修改审核
-func (dao *GormReviewDao) updateReview(ctx context.Context, tx *gorm.DB, review model.Review) error {
+func (dao *GormReviewDao) updateReview(tx *gorm.DB, review model.Review) error {
 	return tx.Where("uuid = ?", review.UUID).Updates(&review).Error
 }

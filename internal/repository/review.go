@@ -103,8 +103,12 @@ func (repo *reviewRepository) toGroupEntity(group domain.Group) model.Group {
 		Base: model.Base{
 			ID: group.ID,
 		},
-		GroupName: group.GroupName,
-		OwnerID:   group.Owner.ID,
+		GroupName:       group.GroupName,
+		OwnerID:         group.Owner.ID,
+		PeopleNumber:    group.PeopleNumber,
+		MaxPeopleNumber: group.MaxPeopleNumber,
+		Category:        group.Category,
+		Status:          group.Status,
 	}
 }
 
@@ -115,5 +119,9 @@ func (repo *reviewRepository) toGroupDomain(group model.Group) domain.Group {
 		Owner: domain.User{
 			ID: group.OwnerID,
 		},
+		PeopleNumber:    group.PeopleNumber,
+		MaxPeopleNumber: group.MaxPeopleNumber,
+		Category:        group.Category,
+		Status:          group.Status,
 	}
 }

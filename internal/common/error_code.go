@@ -19,9 +19,11 @@ const (
 	UserNotFound        errorx.ErrorCode = "GoChat.User.UserNotFound:用户不存在"
 	UserIsExists        errorx.ErrorCode = "GoChat.User.UserIsExists:用户已存在"
 
-	ActivityNotFound  errorx.ErrorCode = "GoChat.Activity.ActivityNotFound:活动不存在"
-	ActivityNotChange errorx.ErrorCode = "GoChat.Activity.NotChange:该活动暂时不能修改"
-	ActivityNotCancel errorx.ErrorCode = "GoChat.Activity.NotCancel:该活动暂时不能取消"
+	ActivityNotFound       errorx.ErrorCode = "GoChat.Activity.ActivityNotFound:活动不存在"
+	ActivityNotChange      errorx.ErrorCode = "GoChat.Activity.NotChange:该活动暂时不能修改"
+	ActivityNotCancel      errorx.ErrorCode = "GoChat.Activity.NotCancel:该活动暂时不能取消"
+	ActivitySignupIsExists errorx.ErrorCode = "GoChat.ActivitySignup.SignupIsExists:已经参加报名"
+	ActivitySignupNotFound errorx.ErrorCode = "GoChat.ActivitySignup.SignupIsExists:为参加报名"
 
 	ReviewNotReview errorx.ErrorCode = "GoChat.Review.NotReview:已经审核过的不能再次审核"
 )

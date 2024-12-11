@@ -3,7 +3,9 @@ package dao
 import (
 	"context"
 	"errors"
+	"github.com/google/uuid"
 	dtoV1 "github.com/zhuguangfeng/go-chat/dto/v1"
+	"github.com/zhuguangfeng/go-chat/internal/common"
 	"github.com/zhuguangfeng/go-chat/model"
 	"github.com/zhuguangfeng/go-chat/pkg/mysqlx"
 	"github.com/zhuguangfeng/go-chat/pkg/utils"
@@ -15,7 +17,7 @@ var (
 )
 
 type ActivityDao interface {
-	InsertActivity(ctx context.Context, activity model.Activity, review model.Review) error
+	InsertActivity(ctx context.Context, activity model.Activity) error
 	UpdateActivity(ctx context.Context, activity model.Activity, review model.Review) error
 	DeleteActivity(ctx context.Context, id int64) error
 	DetailActivity(ctx context.Context, id int64) (model.Activity, error)
@@ -34,15 +36,20 @@ func NewActivityDao(db *gorm.DB) ActivityDao {
 }
 
 // InsertActivity 插入活动并插入审核
-func (dao *GormActivityDao) InsertActivity(ctx context.Context, activity model.Activity, review model.Review) error {
+func (dao *GormActivityDao) InsertActivity(ctx context.Context, activity model.Activity) error {
 	return dao.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		err := tx.Create(&activity).Error
 		if err == nil {
-			review.BizID = activity.ID
-			return tx.Create(&review).Error
+			return tx.Create(&model.Review{
+				UUID:   uuid.NewString(),
+				Biz:    common.ReviewBizActivity,
+				BizID:  activity.ID,
+				Status: common.ReviewStatusPendingReview.Uint(),
+			}).Error
 		}
 		return err
 	})
+
 }
 
 // UpdateActivity 修改活动并修改审核信息
@@ -90,6 +97,7 @@ func (dao *GormActivityDao) ListActivity(ctx context.Context, req dtoV1.SearchAc
 	return res, err
 }
 
+// FindActivityCount 获取总条数
 func (dao *GormActivityDao) FindActivityCount(ctx context.Context, req dtoV1.SearchActivityReq) (int64, error) {
 	var count int64
 	err := mysqlx.NewDaoBuilder(dao.db.WithContext(ctx)).
