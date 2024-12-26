@@ -74,7 +74,6 @@ func InternalError(c *gin.Context, err error) {
 	} else {
 		wrappedErrorResponse(c, http.StatusOK, SystemInternalError, "", err)
 	}
-
 }
 
 func HttpErrorResp(c *gin.Context, httpStatus int, code errorx.ErrorCode, msg string, err error) {

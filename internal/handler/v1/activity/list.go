@@ -10,7 +10,7 @@ import (
 	"github.com/zhuguangfeng/go-chat/pkg/utils"
 )
 
-func (hdl *ActivityHandler) ActivityList(ctx *gin.Context, req dtoV1.SearchActivityReq) {
+func (hdl *ActivityHandler) ActivityList(ctx *gin.Context, req dtoV1.ActivityListReq) {
 
 	activitys, count, err := hdl.activitySvc.ActivityList(ctx, req)
 	if err != nil {
@@ -28,7 +28,7 @@ func (hdl *ActivityHandler) ActivityList(ctx *gin.Context, req dtoV1.SearchActiv
 		CurrentCount: len(activitys),
 		TotalCount:   count,
 		TotalPage:    utils.GetPageCount(int(count), req.PageSize),
-		Result: slice.Map(activitys, func(idx int, src domain.Activity) ActivityData {
+		Result: slice.Map(activitys, func(idx int, src domain.Activity) dtoV1.Activity {
 			return hdl.toActivityData(src)
 		}),
 	})

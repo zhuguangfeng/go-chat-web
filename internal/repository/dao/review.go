@@ -2,7 +2,7 @@ package dao
 
 import (
 	"context"
-	"github.com/zhuguangfeng/go-chat/internal/common"
+	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"github.com/zhuguangfeng/go-chat/model"
 	"github.com/zhuguangfeng/go-chat/pkg/mysqlx"
 	"gorm.io/gorm"
@@ -61,7 +61,7 @@ func (dao *GormReviewDao) ReviewActivity(ctx context.Context, review model.Revie
 		if err != nil {
 			return err
 		}
-		if review.Status == common.ReviewStatusSuccess.Uint() {
+		if review.Status == domain.ReviewStatusSuccess.Uint() {
 			return tx.Create(&group).Error
 		}
 		return nil

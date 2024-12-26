@@ -4,11 +4,6 @@ const (
 	GoChatServicePath = "/apis/v1/go-chat"
 )
 
-const (
-	ReviewBizActivity       = "activity"
-	ReviewBizSignUpActivity = "activity_sign_up"
-)
-
 type DynamicType uint
 
 func (d DynamicType) Uint() int64 {
@@ -44,57 +39,6 @@ const (
 	DynamicStatusUnPublished                          //未发布
 	DynamicStatusUnderReview                          //审核中
 	DynamicStatusReviewPass                           //审核未通过
-)
-
-type ActivityStatus uint
-
-func (a ActivityStatus) Uint() uint {
-	return uint(a)
-}
-
-const (
-	ActivityStatusPendingReview ActivityStatus = iota + 1 //待审核
-	ActivityStatusReviewPass                              //审核失败
-	ActivityStatusSignUp                                  //报名中 == 审核通过
-	ActivityStatusCancel                                  //已取消
-	ActivityStatusStart                                   //已开始
-	ActivityStatusEnd                                     //已结束
-)
-
-type ReviewStatus uint
-
-func (r ReviewStatus) Uint() uint {
-	return uint(r)
-}
-
-const (
-	ReviewStatusPendingReview ReviewStatus = iota + 1 //待审核
-	ReviewStatusReviewCancel                          //审核取消
-	ReviewStatusSuccess                               //审核通过
-	ReviewStatusPass                                  //审核拒绝
-)
-
-type GroupCategory uint
-
-func (g GroupCategory) Uint() uint {
-	return uint(g)
-}
-
-const (
-	GroupCategoryUnknown  GroupCategory = iota
-	GroupCategoryActivity               //活动群
-	GroupCategoryChat                   //聊天群
-)
-
-type GroupStatus uint
-
-func (g GroupStatus) Uint() uint {
-	return uint(g)
-}
-
-const (
-	GroupStatusUnknown GroupStatus = iota + 1
-	GroupStatusNormal
 )
 
 //type ActivitySignupStatus uint

@@ -4,21 +4,24 @@ import (
 	"context"
 	"errors"
 	dtoV1 "github.com/zhuguangfeng/go-chat/dto/v1"
-	"github.com/zhuguangfeng/go-chat/internal/common"
 	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"github.com/zhuguangfeng/go-chat/internal/repository/dao"
 	"github.com/zhuguangfeng/go-chat/model"
 	"github.com/zhuguangfeng/go-chat/pkg/ekit/slice"
-	"github.com/zhuguangfeng/go-chat/pkg/errorx"
 	"github.com/zhuguangfeng/go-chat/pkg/logger"
+)
+
+var (
+	ErrActivityNotFound = dao.ErrActivityNotFound
 )
 
 type ActivityRepository interface {
 	CreateActivity(ctx context.Context, activity domain.Activity) error
-	UpdateActivity(ctx context.Context, activity domain.Activity, review domain.Review) error
+	UpdateActivity(ctx context.Context, activity domain.Activity) error
+	CancelActivity(ctx context.Context, activity domain.Activity) error
 	DeleteActivity(ctx context.Context, id int64) error
-	DetailActivity(ctx context.Context, id int64) (domain.Activity, error)
-	ListActivity(ctx context.Context, req dtoV1.SearchActivityReq) ([]domain.Activity, int64, error)
+	GetActivity(ctx context.Context, id int64) (domain.Activity, error)
+	ActivityList(ctx context.Context, req dtoV1.ActivityListReq) ([]domain.Activity, int64, error)
 	InputActivity(ctx context.Context, activity domain.Activity) error
 }
 
@@ -38,43 +41,37 @@ func NewActivityRepository(logger logger.Logger, activityDao dao.ActivityDao, re
 	}
 }
 
+// CreateActivity 创建活动
 func (repo *activityRepository) CreateActivity(ctx context.Context, activity domain.Activity) error {
-	err := repo.activityDao.InsertActivity(ctx, repo.toActivityEntity(activity))
-	if err != nil {
-		return errorx.NewBizError(common.SystemInternalError).WithError(err)
-	}
-	return nil
+	return repo.activityDao.InsertActivity(ctx, repo.toActivityEntity(activity))
 }
 
-func (repo *activityRepository) UpdateActivity(ctx context.Context, activity domain.Activity, review domain.Review) error {
-	err := repo.activityDao.UpdateActivity(ctx, repo.toActivityEntity(activity), repo.toReviewEntity(review))
-	if err != nil {
-		return errorx.NewBizError(common.SystemInternalError).WithError(err)
-	}
-	return nil
+// UpdateActivity 修改活动
+func (repo *activityRepository) UpdateActivity(ctx context.Context, activity domain.Activity) error {
+	return repo.activityDao.UpdateActivity(ctx, repo.toActivityEntity(activity))
 }
 
+// CancelActivity 取消活动
+func (repo *activityRepository) CancelActivity(ctx context.Context, activity domain.Activity) error {
+	return repo.activityDao.CancelActivity(ctx, repo.toActivityEntity(activity))
+}
+
+// DeleteActivity 删除活动
 func (repo *activityRepository) DeleteActivity(ctx context.Context, id int64) error {
-	err := repo.activityDao.DeleteActivity(ctx, id)
-	if err != nil {
-		return errorx.NewBizError(common.SystemInternalError).WithError(err)
-	}
-	return nil
+	return repo.activityDao.DeleteActivity(ctx, id)
 }
 
-func (repo *activityRepository) DetailActivity(ctx context.Context, id int64) (domain.Activity, error) {
-	activity, err := repo.activityDao.DetailActivity(ctx, id)
-	if err != nil {
-		if errors.Is(err, dao.ErrActivityNotFound) {
-			return domain.Activity{}, errorx.NewBizError(common.ActivityNotFound).WithError(err)
-		}
-		return domain.Activity{}, errorx.NewBizError(common.SystemInternalError).WithError(err)
+// GetActivity 获取活动信息
+func (repo *activityRepository) GetActivity(ctx context.Context, id int64) (domain.Activity, error) {
+	activity, err := repo.activityDao.FindActivityByID(ctx, id)
+	if err != nil && errors.Is(err, dao.ErrActivityNotFound) {
+		return domain.Activity{}, ErrActivityNotFound
 	}
-	return repo.toActivityDomain(activity), nil
+	return repo.toActivityDomain(activity), err
 }
 
-func (repo *activityRepository) ListActivity(ctx context.Context, req dtoV1.SearchActivityReq) ([]domain.Activity, int64, error) {
-
+// ActivityList 活动列表
+func (repo *activityRepository) ActivityList(ctx context.Context, req dtoV1.ActivityListReq) ([]domain.Activity, int64, error) {
 	activityEsResp, err := repo.activityEsDao.SearchActivity(ctx, req)
 	if err == nil {
 		return slice.Map(activityEsResp, func(idx int, src model.ActivityEs) domain.Activity {
@@ -82,25 +79,19 @@ func (repo *activityRepository) ListActivity(ctx context.Context, req dtoV1.Sear
 		}), 0, nil
 	}
 
-	repo.logger.Error("[ActivityRepository.ListActivity]从es获取活动记录失败", logger.Error(err))
+	repo.logger.Error("从es获取活动记录失败", logger.Error(err))
 
-	activitys, err := repo.activityDao.ListActivity(ctx, req)
-	if err == nil {
-		count, err := repo.activityDao.FindActivityCount(ctx, req)
-		if err != nil {
-			repo.logger.Error("[activity.repository.list] 获取活动列表总条数失败",
-				logger.String("searchKey", req.SearchKey),
-				logger.Error(err),
-			)
-		}
-		return slice.Map(activitys, func(idx int, src model.Activity) domain.Activity {
-			return repo.toActivityDomain(src)
-		}), count, nil
-
+	activitys, count, err := repo.activityDao.ActivityList(ctx, req)
+	if err != nil {
+		return nil, 0, err
 	}
-	return nil, 0, errorx.NewBizError(common.SystemInternalError).WithError(err)
+	return slice.Map(activitys, func(idx int, src model.Activity) domain.Activity {
+		return repo.toActivityDomain(src)
+	}), count, nil
+
 }
 
+// InputActivity 同步活动
 func (repo *activityRepository) InputActivity(ctx context.Context, activity domain.Activity) error {
 	return repo.activityEsDao.InputActivity(ctx, repo.toActivityEs(activity))
 }
@@ -122,10 +113,10 @@ func (repo *activityRepository) toActivityEntity(activity domain.Activity) model
 		MaxPeopleNumber:     activity.MaxPeopleNumber,
 		CurrentPeopleNumber: activity.CurrentPeopleNumber,
 		Address:             activity.Address,
-		Category:            activity.Category,
+		Category:            activity.Category.Uint(),
 		StartTime:           activity.StartTime,
 		DeadlineTime:        activity.DeadlineTime,
-		Status:              activity.Status,
+		Status:              activity.Status.Uint(),
 	}
 }
 
@@ -135,10 +126,10 @@ func (repo *activityRepository) toReviewEntity(review domain.Review) model.Revie
 			ID: review.ID,
 		},
 		UUID:       review.UUID,
-		Biz:        review.Biz,
+		Biz:        review.Biz.String(),
 		BizID:      review.BizID,
 		ReviewerID: review.Reviewer.ID,
-		Status:     review.Status,
+		Status:     review.Status.Uint(),
 		ReviewTime: review.ReviewTime,
 	}
 }
@@ -162,10 +153,10 @@ func (repo *activityRepository) toActivityDomain(activity model.Activity) domain
 		MaxPeopleNumber:     activity.MaxPeopleNumber,
 		CurrentPeopleNumber: activity.CurrentPeopleNumber,
 		Address:             activity.Address,
-		Category:            activity.Category,
+		Category:            domain.ActivityCategory(activity.Category),
 		StartTime:           activity.StartTime,
 		DeadlineTime:        activity.DeadlineTime,
-		Status:              activity.Status,
+		Status:              domain.ActivityStatus(activity.Status),
 		CreatedTime:         activity.CreatedAt,
 		UpdatedTime:         activity.UpdatedAt,
 	}
@@ -185,10 +176,10 @@ func (repo *activityRepository) toActivityEs(activity domain.Activity) model.Act
 		MaxPeopleNumber:     activity.MaxPeopleNumber,
 		CurrentPeopleNumber: activity.CurrentPeopleNumber,
 		Address:             activity.Address,
-		Category:            activity.Category,
+		Category:            activity.Category.Uint(),
 		StartTime:           activity.StartTime,
 		DeadlineTime:        activity.DeadlineTime,
-		Status:              activity.Status,
+		Status:              activity.Status.Uint(),
 		CreatedTime:         activity.CreatedTime,
 		UpdatedTime:         activity.UpdatedTime,
 	}
@@ -210,10 +201,10 @@ func (repo *activityRepository) esToActivityDomain(activity model.ActivityEs) do
 		MaxPeopleNumber:     activity.MaxPeopleNumber,
 		CurrentPeopleNumber: activity.CurrentPeopleNumber,
 		Address:             activity.Address,
-		Category:            activity.Category,
+		Category:            domain.ActivityCategory(activity.Category),
 		StartTime:           activity.StartTime,
 		DeadlineTime:        activity.DeadlineTime,
-		Status:              activity.Status,
+		Status:              domain.ActivityStatus(activity.Status),
 		CreatedTime:         activity.CreatedTime,
 		UpdatedTime:         activity.UpdatedTime,
 	}

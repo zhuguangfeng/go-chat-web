@@ -71,10 +71,10 @@ func (repo *reviewRepository) toReviewEntity(review domain.Review) model.Review 
 		},
 		SponsorID:  review.Sponsor.ID,
 		UUID:       review.UUID,
-		Biz:        review.Biz,
+		Biz:        review.Biz.String(),
 		BizID:      review.BizID,
 		ReviewerID: review.Reviewer.ID,
-		Status:     review.Status,
+		Status:     review.Status.Uint(),
 		ReviewTime: review.ReviewTime,
 	}
 }
@@ -83,9 +83,9 @@ func (repo *reviewRepository) toReviewDomain(review model.Review) domain.Review 
 	return domain.Review{
 		ID:     review.ID,
 		UUID:   review.UUID,
-		Biz:    review.Biz,
+		Biz:    domain.ReviewBiz(review.Biz),
 		BizID:  review.BizID,
-		Status: review.Status,
+		Status: domain.ReviewStatus(review.Status),
 		Sponsor: domain.User{
 			ID: review.SponsorID,
 		},
@@ -107,8 +107,8 @@ func (repo *reviewRepository) toGroupEntity(group domain.Group) model.Group {
 		OwnerID:         group.Owner.ID,
 		PeopleNumber:    group.PeopleNumber,
 		MaxPeopleNumber: group.MaxPeopleNumber,
-		Category:        group.Category,
-		Status:          group.Status,
+		Category:        group.Category.Uint(),
+		Status:          group.Status.Uint(),
 	}
 }
 
@@ -121,7 +121,7 @@ func (repo *reviewRepository) toGroupDomain(group model.Group) domain.Group {
 		},
 		PeopleNumber:    group.PeopleNumber,
 		MaxPeopleNumber: group.MaxPeopleNumber,
-		Category:        group.Category,
-		Status:          group.Status,
+		Category:        domain.GroupCategory(group.Category),
+		Status:          domain.GroupStatus(group.Status),
 	}
 }

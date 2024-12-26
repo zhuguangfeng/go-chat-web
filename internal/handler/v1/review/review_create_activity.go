@@ -15,7 +15,7 @@ func (hdl *ReviewHandler) ReviewCreateActivity(ctx *gin.Context, req ImplementRe
 		Reviewer: domain.User{
 			ID: uc.Uid,
 		},
-		Status:     req.Status,
+		Status:     domain.ReviewStatus(req.Status),
 		ReviewTime: uint(time.Now().Unix()),
 	})
 	if err != nil {

@@ -107,7 +107,7 @@ func (repo *CacheUserRepository) toModelUser(user domain.User) model.User {
 		Base: model.Base{
 			ID: user.ID,
 		},
-		Username:      user.UserName,
+		Username:      user.Username,
 		Password:      user.Password,
 		Phone:         user.Phone,
 		Age:           user.Age,
@@ -124,7 +124,7 @@ func (repo *CacheUserRepository) toModelUser(user domain.User) model.User {
 func (repo *CacheUserRepository) toDomainUser(user model.User) domain.User {
 	return domain.User{
 		ID:            user.ID,
-		UserName:      user.Username,
+		Username:      user.Username,
 		Password:      user.Password,
 		Phone:         user.Phone,
 		Age:           user.Age,

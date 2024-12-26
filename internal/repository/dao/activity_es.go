@@ -11,7 +11,7 @@ import (
 
 type ActivityEsDao interface {
 	InputActivity(ctx context.Context, activity model.ActivityEs) error
-	SearchActivity(ctx context.Context, searchReq dtoV1.SearchActivityReq) ([]model.ActivityEs, error)
+	SearchActivity(ctx context.Context, searchReq dtoV1.ActivityListReq) ([]model.ActivityEs, error)
 }
 
 type OlivereActivityEsDao struct {
@@ -29,7 +29,7 @@ func (dao *OlivereActivityEsDao) InputActivity(ctx context.Context, activity mod
 	return err
 }
 
-func (dao *OlivereActivityEsDao) SearchActivity(ctx context.Context, searchReq dtoV1.SearchActivityReq) ([]model.ActivityEs, error) {
+func (dao *OlivereActivityEsDao) SearchActivity(ctx context.Context, searchReq dtoV1.ActivityListReq) ([]model.ActivityEs, error) {
 	titleQuery := elastic.NewMatchQuery("title", searchReq.SearchKey)
 	descQuery := elastic.NewMatchQuery("desc", searchReq.SearchKey)
 	//or 查询

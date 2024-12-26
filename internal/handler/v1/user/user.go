@@ -35,7 +35,7 @@ func (hdl *UserHandler) RegisterRouter(router *gin.Engine) {
 func (hdl *UserHandler) toUser(user domain.User) dtoV1.User {
 	return dtoV1.User{
 		ID:            user.ID,
-		Username:      user.UserName,
+		Username:      user.Username,
 		Phone:         user.Phone,
 		Age:           user.Age,
 		Gender:        user.Gender,

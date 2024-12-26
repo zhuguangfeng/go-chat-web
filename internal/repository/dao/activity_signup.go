@@ -3,7 +3,8 @@ package dao
 import (
 	"context"
 	"errors"
-	"github.com/zhuguangfeng/go-chat/internal/common"
+	dtoV1 "github.com/zhuguangfeng/go-chat/dto/v1"
+	"github.com/zhuguangfeng/go-chat/internal/domain"
 	"github.com/zhuguangfeng/go-chat/model"
 	"github.com/zhuguangfeng/go-chat/pkg/mysqlx"
 	"github.com/zhuguangfeng/go-chat/pkg/utils"
@@ -17,10 +18,11 @@ var (
 
 type ActivitySignUpDao interface {
 	InsertActivitySignUp(ctx context.Context, signUp model.ActivitySignup) error
-	//UpdateActivitySignUp(ctx context.Context, signUp model.ActivitySignup) error
 	FindActivitySignUpByID(ctx context.Context, id int64) (model.ActivitySignup, error)
-	UpdateActivitySignUp(ctx context.Context, signUp model.ActivitySignup, ugMap model.GroupUserMap) error
-	ListActivitySignUp(ctx context.Context, pageNum, pageSize int, activityID, userID int64, status uint) ([]model.ActivitySignup, int64, error)
+	UpdateActivitySignUp(ctx context.Context, signUp model.ActivitySignup) error
+	UpdateActivitySignupStatusSuccess(ctx context.Context, signup model.ActivitySignup, gu model.GroupUserMap) error
+	CancelActivitySignUpWithQuitGroup(ctx context.Context, signUpID, groupID int64) error
+	ActivitySignUpList(ctx context.Context, req dtoV1.SignUpListReq) ([]model.ActivitySignup, int64, error)
 }
 
 type GormActivitySignUpDao struct {
@@ -52,31 +54,57 @@ func (dao *GormActivitySignUpDao) InsertActivitySignUp(ctx context.Context, sign
 	return err
 }
 
-func (dao *GormActivitySignUpDao) UpdateActivitySignUp(ctx context.Context, signUp model.ActivitySignup, ugMap model.GroupUserMap) error {
+// CancelActivitySignUpWithQuitGroup 取消报名推出群聊
+func (dao *GormActivitySignUpDao) CancelActivitySignUpWithQuitGroup(ctx context.Context, signUpID, groupID int64) error {
 	return dao.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		err := dao.updateActivitySignUp(tx, signUp)
-		if err == nil {
-			if signUp.Status == common.ReviewStatusSuccess.Uint() {
-				return dao.db.Create(&ugMap).Error
-			}
+		err := dao.updateActivitySignUp(ctx, tx, model.ActivitySignup{
+			Base: model.Base{
+				ID: signUpID,
+			},
+			Status: domain.ActivitySignupStatusCancelReview.Uint(),
+		})
+		if err != nil {
+			return err
 		}
-		return err
+		tx.Model(model.Group{}).Where("id = ?", groupID).Updates(model.Group{})
+		return tx.Model(model.GroupUserMap{}).Where("group_id = ? and user_id = ?", groupID).Update("status = ?", domain.GroupUserMapStatusQuit).Error
 	})
 }
 
-func (dao *GormActivitySignUpDao) updateActivitySignUp(tx *gorm.DB, signUp model.ActivitySignup) error {
-	return tx.Updates(&signUp).Error
+func (dao *GormActivitySignUpDao) UpdateActivitySignUp(ctx context.Context, signUp model.ActivitySignup) error {
+	return dao.updateActivitySignUp(ctx, nil, signUp)
+}
+
+func (dao *GormActivitySignUpDao) UpdateActivitySignupStatusSuccess(ctx context.Context, signup model.ActivitySignup, gu model.GroupUserMap) error {
+	return dao.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		err := dao.updateActivitySignUp(ctx, tx, model.ActivitySignup{
+			ActivityID: signup.ActivityID,
+			Status:     domain.ActivitySignupStatusReviewSuccess.Uint(),
+		})
+		if err != nil {
+			return err
+		}
+
+		return tx.Create(&gu).Error
+
+	})
+}
+
+func (dao *GormActivitySignUpDao) updateActivitySignUp(ctx context.Context, tx *gorm.DB, signUp model.ActivitySignup) error {
+	if tx != nil {
+		dao.db = tx
+	}
+	return dao.db.WithContext(ctx).Where("id = ?", signUp.ID).Updates(signUp).Error
 }
 
 // ListActivitySignUp 报名列表
-func (dao *GormActivitySignUpDao) ListActivitySignUp(ctx context.Context, pageNum, pageSize int, activityID, userID int64, status uint) ([]model.ActivitySignup, int64, error) {
+func (dao *GormActivitySignUpDao) ActivitySignUpList(ctx context.Context, req dtoV1.SignUpListReq) ([]model.ActivitySignup, int64, error) {
 	var (
 		res   = make([]model.ActivitySignup, 0)
 		count int64
 	)
-	err := mysqlx.NewDaoBuilder(dao.db.WithContext(ctx).Where("activity_id = ? and sponsor_id = ?", activityID, userID)).
-		WithEqual("status", status).
-		WithPagination(pageNum, pageSize).
+	err := mysqlx.NewDaoBuilder(dao.db.WithContext(ctx).Where("activity_id = ? and sponsor_id = ?", req.ActivityID, req.UID)).
+		WithPagination(req.PageNum, req.PageSize).
 		DB.Find(&res).Limit(-1).Offset(-1).Count(&count).Error
 
 	return res, count, err

@@ -71,10 +71,10 @@ func ToEvent(activity domain.Activity) ActivityEvent {
 		MaxPeopleNumber:     activity.MaxPeopleNumber,
 		CurrentPeopleNumber: activity.CurrentPeopleNumber,
 		Address:             activity.Address,
-		Category:            activity.Category,
+		Category:            activity.Category.Uint(),
 		StartTime:           activity.StartTime,
 		DeadlineTime:        activity.DeadlineTime,
-		Status:              activity.Status,
+		Status:              activity.Status.Uint(),
 		CreatedTime:         activity.CreatedTime,
 		UpdatedTime:         activity.UpdatedTime,
 	}

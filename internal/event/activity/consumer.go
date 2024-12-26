@@ -62,10 +62,10 @@ func (a *ActivityConsumer) toDomain(activity ActivityEvent) domain.Activity {
 		MaxPeopleNumber:     activity.MaxPeopleNumber,
 		CurrentPeopleNumber: activity.CurrentPeopleNumber,
 		Address:             activity.Address,
-		Category:            activity.Category,
+		Category:            domain.ActivityCategory(activity.Category),
 		StartTime:           activity.StartTime,
 		DeadlineTime:        activity.DeadlineTime,
-		Status:              activity.Status,
+		Status:              domain.ActivityStatus(activity.Status),
 		CreatedTime:         activity.CreatedTime,
 		UpdatedTime:         activity.UpdatedTime,
 	}
